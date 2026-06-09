@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SCADA Monitoring Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffdad5",
+                        "on-surface": "#dfe2eb",
+                        "on-error": "#690005",
+                        "on-tertiary-container": "#c4010b",
+                        "surface-container-highest": "#31353c",
+                        "secondary-fixed-dim": "#ffba20",
+                        "on-secondary-container": "#6b4b00",
+                        "surface-container-lowest": "#0a0e14",
+                        "border-subtle": "#2D3846",
+                        "outline-variant": "#3b4b37",
+                        "on-secondary-fixed": "#271900",
+                        "inverse-on-surface": "#2d3137",
+                        "text-muted": "#8A94A6",
+                        "on-tertiary-fixed": "#410001",
+                        "surface-container-low": "#181c22",
+                        "surface-deep": "#0A0E14",
+                        "data-cyan": "#00F0FF",
+                        "on-primary-fixed": "#002203",
+                        "primary-fixed-dim": "#00e639",
+                        "surface-dim": "#10141a",
+                        "secondary-container": "#feb700",
+                        "surface-tint": "#00e639",
+                        "on-primary-fixed-variant": "#00530e",
+                        "text-primary": "#E2E6EE",
+                        "primary-container": "#00ff41",
+                        "neon-green": "#00FF41",
+                        "on-background": "#dfe2eb",
+                        "primary": "#ebffe2",
+                        "on-tertiary": "#690003",
+                        "on-secondary": "#412d00",
+                        "on-surface-variant": "#b9ccb2",
+                        "vibrant-red": "#FF3B30",
+                        "on-secondary-fixed-variant": "#5e4200",
+                        "inverse-primary": "#006e16",
+                        "surface-container": "#1c2026",
+                        "surface-container-high": "#262a31",
+                        "surface-bright": "#353940",
+                        "error-container": "#93000a",
+                        "tertiary": "#fff7f6",
+                        "on-primary-container": "#007117",
+                        "inverse-surface": "#dfe2eb",
+                        "surface-elevated": "#1C2530",
+                        "primary-fixed": "#72ff70",
+                        "surface": "#10141a",
+                        "secondary": "#ffdb9d",
+                        "on-error-container": "#ffdad6",
+                        "surface-variant": "#31353c",
+                        "tertiary-fixed-dim": "#ffb4aa",
+                        "surface-panel": "#141B24",
+                        "outline": "#84967e",
+                        "secondary-fixed": "#ffdea8",
+                        "tertiary-container": "#ffd2cc",
+                        "error": "#ffb4ab",
+                        "on-primary": "#003907",
+                        "amber-warning": "#FFB800",
+                        "on-tertiary-fixed-variant": "#930005",
+                        "background": "#10141a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "margin-desktop": "24px",
+                        "unit": "4px",
+                        "margin-mobile": "16px",
+                        "widget-gap": "12px"
+                    },
+                    "fontFamily": {
+                        "data-display": ["JetBrains Mono"],
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "data-display": ["28px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "label-mono": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "30px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .scada-gauge-circle {
+            stroke-dasharray: 283;
+            stroke-dashoffset: 70;
+            transition: stroke-dashoffset 1s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen overflow-x-hidden selection:bg-primary-fixed-dim selection:text-on-primary-fixed">
+<!-- TopNavBar -->
+<nav class="fixed top-0 right-0 left-64 z-50 flex justify-between items-center px-margin-desktop h-16 bg-surface-container-low border-b border-border-subtle hidden md:flex">
+<div class="flex items-center gap-6">
+<span class="font-data-display text-data-display font-black text-neon-green tracking-tighter">NEXUS MONITOR</span>
+<div class="flex gap-4 ml-8">
+<a class="text-text-muted hover:text-neon-green transition-all duration-200 font-label-mono text-label-mono" href="#">Systems</a>
+<a class="text-on-surface border-b-2 border-neon-green pb-1 font-label-mono text-label-mono hover:text-neon-green transition-all duration-200" href="#">Grid</a>
+<a class="text-text-muted hover:text-neon-green transition-all duration-200 font-label-mono text-label-mono" href="#">Security</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="font-label-mono text-label-mono text-primary-fixed-dim">SYSTEM ACTIVE</span>
+<div class="flex gap-4 text-primary-fixed-dim">
+<button class="hover:text-neon-green transition-colors"><span class="material-symbols-outlined" data-icon="schedule">schedule</span></button>
+<button class="hover:text-neon-green transition-colors"><span class="material-symbols-outlined" data-icon="account_circle">account_circle</span></button>
+<button class="hover:text-neon-green transition-colors"><span class="material-symbols-outlined" data-icon="sync">sync</span></button>
+</div>
+<img alt="Lead Engineer profile picture, professional headshot in industrial setting" class="w-8 h-8 rounded-full border border-border-subtle object-cover" data-alt="Close-up professional headshot of a lead engineer in a high-tech industrial setting. The lighting is crisp and cool, casting subtle technical reflections on their face. The mood is serious, competent, and focused. The background is a slightly blurred, dark control room with glowing green and blue telemetry monitors, aligning perfectly with a modern, high-contrast dark mode SCADA interface style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpggYNDwTFqL8aQIbmyLj2EGqnKuRrRAS4XUVc9gZDpgjaR-TAFtSUWRgpGDnXruDlL12q9qVYOdR9R_dBIEbFXKQB2XM-0Hng3xPcjNUbERH_wkqtESlkygvoLJUyEmlkS3g4w5QTDQpde94srKBnocVu0x_hH3cEuMY0URvGFM68lzqLhEKwZEey6pwzYqrIhgK9O3DmtBeVYq3tb7fAV-ofkEcEjqqGztH-hsrueOsk-Ru8omLGq0s9CczlqLpjBkiSAY_4cbu5"/>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full z-40 flex flex-col w-64 bg-surface-container-lowest border-r border-border-subtle hidden md:flex">
+<div class="p-6 border-b border-border-subtle">
+<h1 class="font-headline-md text-headline-md text-on-surface mb-1">Control Center</h1>
+<p class="font-label-mono text-label-mono text-text-muted">Station Alpha-12</p>
+</div>
+<div class="flex-1 overflow-y-auto py-4">
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-label-mono text-label-mono" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Overview
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-label-mono text-label-mono" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                    Telemetry
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 bg-surface-container-high text-primary-fixed-dim border-l-4 border-primary-fixed-dim opacity-90 transition-opacity font-label-mono text-label-mono" href="#">
+<span class="material-symbols-outlined" data-icon="precision_manufacturing">precision_manufacturing</span>
+                    Equipment
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-label-mono text-label-mono" href="#">
+<span class="material-symbols-outlined" data-icon="notifications_active">notifications_active</span>
+                    Alarms
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-label-mono text-label-mono" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+                    Logs
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-label-mono text-label-mono" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                    Settings
+                </a>
+</nav>
+</div>
+<div class="p-4 border-t border-border-subtle mt-auto">
+<button class="w-full bg-vibrant-red/10 text-vibrant-red border border-vibrant-red/30 py-2 rounded font-label-mono text-label-mono font-bold hover:bg-vibrant-red/20 transition-colors mb-4">
+                EMERGENCY STOP
+            </button>
+<div class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-2 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-label-mono text-label-mono" href="#">
+<span class="material-symbols-outlined" data-icon="help_center">help_center</span>
+                    Support
+                </a>
+<a class="flex items-center gap-3 px-4 py-2 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-label-mono text-label-mono" href="#">
+<span class="material-symbols-outlined" data-icon="build">build</span>
+                    Diagnostics
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-16 min-h-screen flex flex-col p-margin-desktop gap-widget-gap">
+<!-- Top Section: Dashboard -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-widget-gap">
+<!-- Widget 1: Power Load A -->
+<div class="bg-surface-panel border-t-2 border-neon-green border-x border-b border-border-subtle p-4 rounded-DEFAULT flex flex-col items-center justify-center relative col-span-1 h-48">
+<div class="absolute top-3 left-3 flex items-center gap-2 w-full pr-6 justify-between">
+<span class="font-label-mono text-label-mono text-text-muted uppercase">Power Load A</span>
+<span class="w-2 h-2 rounded-full bg-neon-green"></span>
+</div>
+<div class="relative w-24 h-24 mt-4">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="#2D3846" stroke-width="8"></circle>
+<circle class="scada-gauge-circle" cx="50" cy="50" fill="none" r="45" stroke="#00FF41" stroke-width="8" style="stroke-dashoffset: 70;"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center flex-col">
+<span class="font-data-display text-data-display text-on-surface leading-none">75</span>
+<span class="font-label-mono text-label-mono text-text-muted">%</span>
+</div>
+</div>
+</div>
+<!-- Widget 2: Power Load B -->
+<div class="bg-surface-panel border-t-2 border-neon-green border-x border-b border-border-subtle p-4 rounded-DEFAULT flex flex-col items-center justify-center relative col-span-1 h-48">
+<div class="absolute top-3 left-3 flex items-center gap-2 w-full pr-6 justify-between">
+<span class="font-label-mono text-label-mono text-text-muted uppercase">Power Load B</span>
+<span class="w-2 h-2 rounded-full bg-neon-green"></span>
+</div>
+<div class="relative w-24 h-24 mt-4">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="#2D3846" stroke-width="8"></circle>
+<circle class="scada-gauge-circle" cx="50" cy="50" fill="none" r="45" stroke="#00FF41" stroke-width="8" style="stroke-dashoffset: 120;"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center flex-col">
+<span class="font-data-display text-data-display text-on-surface leading-none">58</span>
+<span class="font-label-mono text-label-mono text-text-muted">%</span>
+</div>
+</div>
+</div>
+<!-- Widget 3: Real-time Frequency Chart -->
+<div class="bg-surface-panel border-t-2 border-primary-fixed-dim border-x border-b border-border-subtle p-4 rounded-DEFAULT relative col-span-1 md:col-span-2 h-48 flex flex-col">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-mono text-label-mono text-text-muted uppercase">Grid Frequency (Hz)</span>
+<button class="text-text-muted hover:text-on-surface"><span class="material-symbols-outlined text-[18px]" data-icon="open_in_full">open_in_full</span></button>
+</div>
+<div class="flex-1 relative w-full h-full overflow-hidden flex items-end pb-2">
+<!-- Simulated Line Chart using SVG -->
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 100 40">
+<!-- Grid lines -->
+<line stroke="#2D3846" stroke-dasharray="2 2" stroke-width="0.5" x1="0" x2="100" y1="10" y2="10"></line>
+<line stroke="#2D3846" stroke-dasharray="2 2" stroke-width="0.5" x1="0" x2="100" y1="20" y2="20"></line>
+<line stroke="#2D3846" stroke-dasharray="2 2" stroke-width="0.5" x1="0" x2="100" y1="30" y2="30"></line>
+<!-- Line -->
+<polyline fill="none" points="0,20 10,18 20,22 30,19 40,25 50,21 60,15 70,20 80,18 90,24 100,20" stroke="#00F0FF" stroke-width="1.5"></polyline>
+<!-- Area -->
+<polygon fill="url(#chart-gradient)" opacity="0.3" points="0,40 0,20 10,18 20,22 30,19 40,25 50,21 60,15 70,20 80,18 90,24 100,20 100,40"></polygon>
+<defs>
+<lineargradient id="chart-gradient" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#00F0FF" stop-opacity="0.8"></stop>
+<stop offset="100%" stop-color="#00F0FF" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+</svg>
+<div class="absolute top-0 right-0 font-data-display text-data-display text-data-cyan">60.01</div>
+</div>
+</div>
+</section>
+<!-- Middle Section: Core Indicators -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-widget-gap">
+<!-- GIS Card -->
+<div class="bg-surface-panel border border-border-subtle rounded-DEFAULT p-4 flex items-center justify-between hover:bg-surface-elevated transition-colors">
+<div class="flex flex-col">
+<span class="font-label-mono text-label-mono text-text-muted uppercase mb-1">GIS (Gas Insulated Switchgear)</span>
+<span class="font-data-display text-data-display text-on-surface">154kV</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-4 h-4 rounded-full bg-neon-green shadow-[0_0_8px_rgba(0,255,65,0.6)] animate-pulse"></div>
+<span class="font-label-mono text-label-mono text-text-muted text-[9px]">NORMAL</span>
+</div>
+</div>
+<!-- GTG Card -->
+<div class="bg-surface-panel border border-border-subtle rounded-DEFAULT p-4 flex items-center justify-between hover:bg-surface-elevated transition-colors">
+<div class="flex flex-col">
+<span class="font-label-mono text-label-mono text-text-muted uppercase mb-1">GTG (Gas Turbine Generator)</span>
+<span class="font-data-display text-data-display text-on-surface">240MW</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-4 h-4 rounded-full bg-neon-green shadow-[0_0_8px_rgba(0,255,65,0.6)] animate-pulse"></div>
+<span class="font-label-mono text-label-mono text-text-muted text-[9px]">NORMAL</span>
+</div>
+</div>
+<!-- STG Card -->
+<div class="bg-surface-panel border border-border-subtle rounded-DEFAULT p-4 flex items-center justify-between hover:bg-surface-elevated transition-colors">
+<div class="flex flex-col">
+<span class="font-label-mono text-label-mono text-text-muted uppercase mb-1">STG (Steam Turbine Generator)</span>
+<span class="font-data-display text-data-display text-on-surface">120MW</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-4 h-4 rounded-full bg-neon-green shadow-[0_0_8px_rgba(0,255,65,0.6)] animate-pulse"></div>
+<span class="font-label-mono text-label-mono text-text-muted text-[9px]">NORMAL</span>
+</div>
+</div>
+</section>
+<!-- Bottom Section: Equipment Search -->
+<section class="bg-surface-panel border border-border-subtle rounded-DEFAULT flex flex-col flex-1 min-h-[300px]">
+<!-- Search Header -->
+<div class="p-4 border-b border-border-subtle flex items-center gap-4 bg-surface-container-low">
+<span class="material-symbols-outlined text-text-muted" data-icon="search">search</span>
+<input autocomplete="off" class="w-full bg-transparent border-none text-on-surface font-label-mono text-label-mono focus:ring-0 placeholder:text-text-muted/50 p-0" id="equipmentSearch" placeholder="Search equipment ID or status..." type="text"/>
+</div>
+<!-- Data Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-highest border-b border-border-subtle">
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">Equipment Name</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">Operating Status</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold text-right">Last Calibration</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">Responsible Person</th>
+</tr>
+</thead>
+<tbody class="font-data-display text-body-sm text-on-surface" id="equipmentTableBody">
+<tr class="border-b border-border-subtle hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-4 font-label-mono">154kV Line #1</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-neon-green/30 text-neon-green text-[10px] font-label-mono uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-neon-green"></span> Normal
+                                </span>
+</td>
+<td class="py-3 px-4 text-right">2024-03-01</td>
+<td class="py-3 px-4 text-text-muted">Kim</td>
+</tr>
+<tr class="border-b border-border-subtle hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-4 font-label-mono">Turbine A-12</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-amber-warning/30 text-amber-warning text-[10px] font-label-mono uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-warning"></span> Maintenance
+                                </span>
+</td>
+<td class="py-3 px-4 text-right">2023-12-15</td>
+<td class="py-3 px-4 text-text-muted">Lee</td>
+</tr>
+<tr class="border-b border-border-subtle hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-4 font-label-mono">Auxiliary Power B</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-neon-green/30 text-neon-green text-[10px] font-label-mono uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-neon-green"></span> Normal
+                                </span>
+</td>
+<td class="py-3 px-4 text-right">2024-02-10</td>
+<td class="py-3 px-4 text-text-muted">Park</td>
+</tr>
+<tr class="border-b border-border-subtle hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-4 font-label-mono border-l-2 border-vibrant-red">Main Transformer</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-vibrant-red/30 text-vibrant-red text-[10px] font-label-mono uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-vibrant-red"></span> Warning
+                                </span>
+</td>
+<td class="py-3 px-4 text-right">2024-01-20</td>
+<td class="py-3 px-4 text-text-muted">Choi</td>
+</tr>
+<tr class="border-b border-border-subtle hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-4 font-label-mono">Emergency Gen #2</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-neon-green/30 text-neon-green text-[10px] font-label-mono uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-neon-green"></span> Normal
+                                </span>
+</td>
+<td class="py-3 px-4 text-right">2024-03-05</td>
+<td class="py-3 px-4 text-text-muted">Jung</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+<script>
+        // Simple search filter implementation
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('equipmentSearch');
+            const tableBody = document.getElementById('equipmentTableBody');
+            const rows = tableBody.getElementsByTagName('tr');
+
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+
+                Array.from(rows).forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if(text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body></html>

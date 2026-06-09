@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SCADA Monitoring Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffdad5",
+                        "on-surface": "#dfe2eb",
+                        "on-error": "#690005",
+                        "on-tertiary-container": "#c4010b",
+                        "surface-container-highest": "#31353c",
+                        "secondary-fixed-dim": "#ffba20",
+                        "on-secondary-container": "#6b4b00",
+                        "surface-container-lowest": "#0a0e14",
+                        "border-subtle": "#2D3846",
+                        "outline-variant": "#3b4b37",
+                        "on-secondary-fixed": "#271900",
+                        "inverse-on-surface": "#2d3137",
+                        "text-muted": "#8A94A6",
+                        "on-tertiary-fixed": "#410001",
+                        "surface-container-low": "#181c22",
+                        "surface-deep": "#0A0E14",
+                        "data-cyan": "#00F0FF",
+                        "on-primary-fixed": "#002203",
+                        "primary-fixed-dim": "#00e639",
+                        "surface-dim": "#10141a",
+                        "secondary-container": "#feb700",
+                        "surface-tint": "#00e639",
+                        "on-primary-fixed-variant": "#00530e",
+                        "text-primary": "#E2E6EE",
+                        "primary-container": "#00ff41",
+                        "neon-green": "#00FF41",
+                        "on-background": "#dfe2eb",
+                        "primary": "#ebffe2",
+                        "on-tertiary": "#690003",
+                        "on-secondary": "#412d00",
+                        "on-surface-variant": "#b9ccb2",
+                        "vibrant-red": "#FF3B30",
+                        "on-secondary-fixed-variant": "#5e4200",
+                        "inverse-primary": "#006e16",
+                        "surface-container": "#1c2026",
+                        "surface-container-high": "#262a31",
+                        "surface-bright": "#353940",
+                        "error-container": "#93000a",
+                        "tertiary": "#fff7f6",
+                        "on-primary-container": "#007117",
+                        "inverse-surface": "#dfe2eb",
+                        "surface-elevated": "#1C2530",
+                        "primary-fixed": "#72ff70",
+                        "surface": "#10141a",
+                        "secondary": "#ffdb9d",
+                        "on-error-container": "#ffdad6",
+                        "surface-variant": "#31353c",
+                        "tertiary-fixed-dim": "#ffb4aa",
+                        "surface-panel": "#141B24",
+                        "outline": "#84967e",
+                        "secondary-fixed": "#ffdea8",
+                        "tertiary-container": "#ffd2cc",
+                        "error": "#ffb4ab",
+                        "on-primary": "#003907",
+                        "amber-warning": "#FFB800",
+                        "on-tertiary-fixed-variant": "#930005",
+                        "background": "#10141a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "margin-desktop": "24px",
+                        "unit": "4px",
+                        "margin-mobile": "16px",
+                        "widget-gap": "12px"
+                    },
+                    "fontFamily": {
+                        "data-display": ["JetBrains Mono"],
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "data-display": ["28px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "label-mono": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "30px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .scada-gauge-circle {
+            stroke-dasharray: 283;
+            stroke-dashoffset: 70;
+            transition: stroke-dashoffset 1s ease-in-out;
+        }
+        /* --- Functional additions: built strictly from existing design tokens --- */
+        .view { display: none; }
+        .view.active { display: flex; }
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: #0A0E14; }
+        ::-webkit-scrollbar-thumb { background: #2D3846; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b4b37; }
+        select option { background: #0A0E14; color: #dfe2eb; }
+        @keyframes ehm-fade-in { from { opacity: 0; } to { opacity: 1; } }
+        .ehm-overlay { animation: ehm-fade-in 0.15s ease-out; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen overflow-x-hidden selection:bg-primary-fixed-dim selection:text-on-primary-fixed">
+<!-- TopNavBar -->
+<nav class="fixed top-0 right-0 left-64 z-50 flex justify-between items-center px-margin-desktop h-16 bg-surface-container-low border-b border-border-subtle hidden md:flex">
+<div class="flex items-center gap-6">
+<span class="font-data-display text-data-display font-black text-neon-green tracking-tighter">NEXUS MONITOR</span>
+<div class="flex gap-4 ml-8">
+<a class="text-text-muted hover:text-neon-green transition-all duration-200 font-label-mono text-label-mono" href="#">Systems</a>
+<a class="text-on-surface border-b-2 border-neon-green pb-1 font-label-mono text-label-mono hover:text-neon-green transition-all duration-200" href="#">Grid</a>
+<a class="text-text-muted hover:text-neon-green transition-all duration-200 font-label-mono text-label-mono" href="#">Security</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="font-label-mono text-label-mono text-primary-fixed-dim" id="topClock">SYSTEM ACTIVE</span>
+<div class="flex gap-4 text-primary-fixed-dim">
+<button class="hover:text-neon-green transition-colors"><span class="material-symbols-outlined" data-icon="schedule">schedule</span></button>
+<button class="hover:text-neon-green transition-colors"><span class="material-symbols-outlined" data-icon="account_circle">account_circle</span></button>
+<button class="hover:text-neon-green transition-colors" id="syncBtn" title="데이터 새로고침"><span class="material-symbols-outlined" data-icon="sync">sync</span></button>
+</div>
+<img alt="Lead Engineer profile picture, professional headshot in industrial setting" class="w-8 h-8 rounded-full border border-border-subtle object-cover" data-alt="Close-up professional headshot of a lead engineer in a high-tech industrial setting. The lighting is crisp and cool, casting subtle technical reflections on their face. The mood is serious, competent, and focused. The background is a slightly blurred, dark control room with glowing green and blue telemetry monitors, aligning perfectly with a modern, high-contrast dark mode SCADA interface style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpggYNDwTFqL8aQIbmyLj2EGqnKuRrRAS4XUVc9gZDpgjaR-TAFtSUWRgpGDnXruDlL12q9qVYOdR9R_dBIEbFXKQB2XM-0Hng3xPcjNUbERH_wkqtESlkygvoLJUyEmlkS3g4w5QTDQpde94srKBnocVu0x_hH3cEuMY0URvGFM68lzqLhEKwZEey6pwzYqrIhgK9O3DmtBeVYq3tb7fAV-ofkEcEjqqGztH-hsrueOsk-Ru8omLGq0s9CczlqLpjBkiSAY_4cbu5"/>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full z-40 flex flex-col w-64 bg-surface-container-lowest border-r border-border-subtle hidden md:flex">
+<div class="p-6 border-b border-border-subtle">
+<h1 class="font-headline-md text-headline-md text-on-surface mb-1">Control Center</h1>
+<p class="font-label-mono text-label-mono text-text-muted">Station Alpha-12</p>
+</div>
+<div class="flex-1 overflow-y-auto py-4">
+<nav class="flex flex-col gap-1" id="sideNav">
+<a class="nav-link flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-label-mono text-label-mono" data-view="overview" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Overview
+                </a>
+<a class="nav-link flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-label-mono text-label-mono" data-view="telemetry" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                    Telemetry
+                </a>
+<a class="nav-link flex items-center gap-3 px-4 py-3 bg-surface-container-high text-primary-fixed-dim border-l-4 border-primary-fixed-dim opacity-90 transition-opacity font-label-mono text-label-mono" data-view="equipment" href="#">
+<span class="material-symbols-outlined" data-icon="precision_manufacturing">precision_manufacturing</span>
+                    Equipment
+                </a>
+<a class="nav-link flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-label-mono text-label-mono" data-view="alarms" href="#">
+<span class="material-symbols-outlined" data-icon="notifications_active">notifications_active</span>
+                    Alarms
+                </a>
+<a class="nav-link flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-label-mono text-label-mono" data-view="analysis" href="#">
+<span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+                    분석
+                </a>
+<a class="nav-link flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-label-mono text-label-mono" data-view="logs" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+                    Logs
+                </a>
+<a class="nav-link flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-label-mono text-label-mono" data-view="settings" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                    Settings
+                </a>
+</nav>
+</div>
+<div class="p-4 border-t border-border-subtle mt-auto">
+<div class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-2 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-label-mono text-label-mono" href="#">
+<span class="material-symbols-outlined" data-icon="help_center">help_center</span>
+                    Support
+                </a>
+<a class="flex items-center gap-3 px-4 py-2 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150 font-label-mono text-label-mono" href="#">
+<span class="material-symbols-outlined" data-icon="build">build</span>
+                    Diagnostics
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-16 min-h-screen flex flex-col p-margin-desktop gap-widget-gap">
+
+<!-- ===================== VIEW: OVERVIEW (original design, made live) ===================== -->
+<div class="view active flex-col gap-widget-gap flex-1" id="view-overview">
+<!-- Middle Section: Core Indicators -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-widget-gap">
+<!-- GIS Card -->
+<div class="bg-surface-panel border border-border-subtle rounded-DEFAULT p-4 flex items-center justify-between hover:bg-surface-elevated transition-colors">
+<div class="flex flex-col">
+<span class="font-label-mono text-label-mono text-text-muted uppercase mb-1">GIS (Gas Insulated Switchgear)</span>
+<span class="font-data-display text-data-display text-on-surface">154kV</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-4 h-4 rounded-full bg-neon-green shadow-[0_0_8px_rgba(0,255,65,0.6)] animate-pulse"></div>
+<span class="font-label-mono text-label-mono text-text-muted text-[9px]">NORMAL</span>
+</div>
+</div>
+<!-- GTG Card -->
+<div class="bg-surface-panel border border-border-subtle rounded-DEFAULT p-4 flex items-center justify-between hover:bg-surface-elevated transition-colors">
+<div class="flex flex-col">
+<span class="font-label-mono text-label-mono text-text-muted uppercase mb-1">GTG (Gas Turbine Generator)</span>
+<span class="font-data-display text-data-display text-on-surface">240MW</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-4 h-4 rounded-full bg-neon-green shadow-[0_0_8px_rgba(0,255,65,0.6)] animate-pulse"></div>
+<span class="font-label-mono text-label-mono text-text-muted text-[9px]">NORMAL</span>
+</div>
+</div>
+<!-- STG Card -->
+<div class="bg-surface-panel border border-border-subtle rounded-DEFAULT p-4 flex items-center justify-between hover:bg-surface-elevated transition-colors">
+<div class="flex flex-col">
+<span class="font-label-mono text-label-mono text-text-muted uppercase mb-1">STG (Steam Turbine Generator)</span>
+<span class="font-data-display text-data-display text-on-surface">120MW</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-4 h-4 rounded-full bg-neon-green shadow-[0_0_8px_rgba(0,255,65,0.6)] animate-pulse"></div>
+<span class="font-label-mono text-label-mono text-text-muted text-[9px]">NORMAL</span>
+</div>
+</div>
+</section>
+<!-- Bottom Section: Equipment Search -->
+<section class="bg-surface-panel border border-border-subtle rounded-DEFAULT flex flex-col flex-1 min-h-[300px]">
+<!-- Search Header -->
+<div class="p-4 border-b border-border-subtle flex items-center gap-4 bg-surface-container-low">
+<span class="material-symbols-outlined text-text-muted" data-icon="search">search</span>
+<input autocomplete="off" class="w-full bg-transparent border-none text-on-surface font-label-mono text-label-mono focus:ring-0 placeholder:text-text-muted/50 p-0" id="equipmentSearch" placeholder="Search equipment ID or status..." type="text"/>
+</div>
+<!-- Data Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-highest border-b border-border-subtle">
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">Equipment Name</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">Operating Status</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold text-right">Last Calibration</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">Responsible Person</th>
+</tr>
+</thead>
+<tbody class="font-data-display text-body-sm text-on-surface" id="equipmentTableBody">
+</tbody>
+</table>
+</div>
+</section>
+</div>
+
+<!-- ===================== VIEW: EQUIPMENT MASTER (설비 마스터) ===================== -->
+<div class="view flex-col gap-widget-gap flex-1" id="view-equipment">
+<section class="flex items-center justify-between flex-wrap gap-3">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">설비 마스터</h2>
+<p class="font-label-mono text-label-mono text-text-muted uppercase mt-1">Equipment Master · 설비 1대 = 1행</p>
+</div>
+<div class="flex items-center gap-2 flex-wrap">
+<button class="ehm-ghost flex items-center gap-2 px-3 py-2 text-text-muted border border-border-subtle rounded font-label-mono text-label-mono hover:text-on-surface hover:bg-surface-container-low transition-colors" data-export="equipment"><span class="material-symbols-outlined text-[18px]">download</span> 내보내기</button>
+<button class="ehm-ghost flex items-center gap-2 px-3 py-2 text-text-muted border border-border-subtle rounded font-label-mono text-label-mono hover:text-on-surface hover:bg-surface-container-low transition-colors" data-import="true"><span class="material-symbols-outlined text-[18px]">upload</span> 불러오기</button>
+<button class="flex items-center gap-2 px-3 py-2 bg-neon-green/10 text-neon-green border border-neon-green/30 rounded font-label-mono text-label-mono font-bold hover:bg-neon-green/20 transition-colors" id="addEquipmentBtn"><span class="material-symbols-outlined text-[18px]">add</span> 설비 등록</button>
+</div>
+</section>
+<section class="bg-surface-panel border border-border-subtle rounded-DEFAULT flex flex-col flex-1 min-h-[300px]">
+<div class="p-4 border-b border-border-subtle flex items-center gap-3 bg-surface-container-low flex-wrap">
+<div class="flex items-center gap-2 flex-1 min-w-[200px]">
+<span class="material-symbols-outlined text-text-muted" data-icon="search">search</span>
+<input autocomplete="off" class="w-full bg-transparent border-none text-on-surface font-label-mono text-label-mono focus:ring-0 placeholder:text-text-muted/50 p-0" id="masterSearch" placeholder="관리번호 / 설비명 검색..." type="text"/>
+</div>
+<select class="ehm-filter bg-surface-container-lowest border border-border-subtle text-on-surface font-label-mono text-label-mono rounded py-1.5 px-2 focus:ring-1 focus:ring-neon-green focus:border-neon-green" id="masterBranchFilter"></select>
+<select class="ehm-filter bg-surface-container-lowest border border-border-subtle text-on-surface font-label-mono text-label-mono rounded py-1.5 px-2 focus:ring-1 focus:ring-neon-green focus:border-neon-green" id="masterTypeFilter"></select>
+<select class="ehm-filter bg-surface-container-lowest border border-border-subtle text-on-surface font-label-mono text-label-mono rounded py-1.5 px-2 focus:ring-1 focus:ring-neon-green focus:border-neon-green" id="masterStatusFilter"></select>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-highest border-b border-border-subtle">
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">관리번호</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">설비명</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">종류</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">지사</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">상태</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold text-right">정비주기(月)</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold text-right">관리</th>
+</tr>
+</thead>
+<tbody class="font-data-display text-body-sm text-on-surface" id="masterTableBody"></tbody>
+</table>
+</div>
+<div class="p-3 border-t border-border-subtle font-label-mono text-label-mono text-text-muted" id="masterCount"></div>
+</section>
+</div>
+
+<!-- ===================== VIEW: HISTORY / LOGS (이력 기록) ===================== -->
+<div class="view flex-col gap-widget-gap flex-1" id="view-logs">
+<section class="flex items-center justify-between flex-wrap gap-3">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">이력 기록</h2>
+<p class="font-label-mono text-label-mono text-text-muted uppercase mt-1">Maintenance History · 점검·정비 1건 = 1행</p>
+</div>
+<div class="flex items-center gap-2 flex-wrap">
+<button class="ehm-ghost flex items-center gap-2 px-3 py-2 text-text-muted border border-border-subtle rounded font-label-mono text-label-mono hover:text-on-surface hover:bg-surface-container-low transition-colors" data-export="history"><span class="material-symbols-outlined text-[18px]">download</span> 내보내기</button>
+<button class="ehm-ghost flex items-center gap-2 px-3 py-2 text-text-muted border border-border-subtle rounded font-label-mono text-label-mono hover:text-on-surface hover:bg-surface-container-low transition-colors" data-import="true"><span class="material-symbols-outlined text-[18px]">upload</span> 불러오기</button>
+<button class="flex items-center gap-2 px-3 py-2 bg-neon-green/10 text-neon-green border border-neon-green/30 rounded font-label-mono text-label-mono font-bold hover:bg-neon-green/20 transition-colors" id="addHistoryBtn"><span class="material-symbols-outlined text-[18px]">add</span> 이력 등록</button>
+</div>
+</section>
+<section class="bg-surface-panel border border-border-subtle rounded-DEFAULT flex flex-col flex-1 min-h-[300px]">
+<div class="p-4 border-b border-border-subtle flex items-center gap-3 bg-surface-container-low flex-wrap">
+<div class="flex items-center gap-2 flex-1 min-w-[180px]">
+<span class="material-symbols-outlined text-text-muted" data-icon="search">search</span>
+<input autocomplete="off" class="w-full bg-transparent border-none text-on-surface font-label-mono text-label-mono focus:ring-0 placeholder:text-text-muted/50 p-0" id="historySearch" placeholder="관리번호 / 작업내용 / 담당자 검색..." type="text"/>
+</div>
+<select class="ehm-filter bg-surface-container-lowest border border-border-subtle text-on-surface font-label-mono text-label-mono rounded py-1.5 px-2 focus:ring-1 focus:ring-neon-green focus:border-neon-green" id="historyWorkFilter"></select>
+<select class="ehm-filter bg-surface-container-lowest border border-border-subtle text-on-surface font-label-mono text-label-mono rounded py-1.5 px-2 focus:ring-1 focus:ring-neon-green focus:border-neon-green" id="historyResultFilter"></select>
+<input class="ehm-filter bg-surface-container-lowest border border-border-subtle text-on-surface font-label-mono text-label-mono rounded py-1.5 px-2 focus:ring-1 focus:ring-neon-green focus:border-neon-green" id="historyQuarterFilter" placeholder="분기 예: 2024-Q1" type="text"/>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-highest border-b border-border-subtle">
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">일자</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">분기</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">관리번호</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">작업유형</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">작업내용</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">결과/판정</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">담당자</th>
+<th class="py-3 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold text-right">관리</th>
+</tr>
+</thead>
+<tbody class="font-data-display text-body-sm text-on-surface" id="historyTableBody"></tbody>
+</table>
+</div>
+<div class="p-3 border-t border-border-subtle font-label-mono text-label-mono text-text-muted" id="historyCount"></div>
+</section>
+</div>
+
+<!-- ===================== VIEW: ALARMS (검증 / 불일치 / 연1회 재확인) ===================== -->
+<div class="view flex-col gap-widget-gap flex-1" id="view-alarms">
+<section class="flex items-center justify-between flex-wrap gap-3">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">검증 &amp; 취합</h2>
+<p class="font-label-mono text-label-mono text-text-muted uppercase mt-1">Validation · 불일치 확인 · 연 1회 재확인</p>
+</div>
+<button class="ehm-ghost flex items-center gap-2 px-3 py-2 text-text-muted border border-border-subtle rounded font-label-mono text-label-mono hover:text-on-surface hover:bg-surface-container-low transition-colors" id="revalidateBtn"><span class="material-symbols-outlined text-[18px]">fact_check</span> 재검증</button>
+</section>
+<section class="grid grid-cols-1 md:grid-cols-4 gap-widget-gap" id="verifySummary"></section>
+<section class="bg-surface-panel border border-border-subtle rounded-DEFAULT flex flex-col flex-1 min-h-[200px]">
+<div class="p-4 border-b border-border-subtle bg-surface-container-low flex items-center gap-3">
+<span class="material-symbols-outlined text-amber-warning" data-icon="rule">rule</span>
+<span class="font-label-mono text-label-mono text-text-muted uppercase">이상 목록 (Validation Issues)</span>
+</div>
+<div id="verifyIssues" class="divide-y divide-border-subtle"></div>
+</section>
+</div>
+
+<!-- ===================== VIEW: TELEMETRY (alias of overview dashboard summary) ===================== -->
+<div class="view flex-col gap-widget-gap flex-1" id="view-telemetry">
+<section class="flex items-center justify-between">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Telemetry</h2>
+<p class="font-label-mono text-label-mono text-text-muted uppercase mt-1">설비 현황 요약</p>
+</div>
+</section>
+<section class="grid grid-cols-1 md:grid-cols-4 gap-widget-gap" id="telemetrySummary"></section>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-text-muted text-[18px]" data-icon="folder_open">folder_open</span>
+<span class="font-label-mono text-label-mono text-text-muted uppercase">지사별 설비 폴더 — 세모(▾)를 누르면 설비목록이 펼쳐집니다</span>
+</div>
+<section class="flex flex-col gap-widget-gap" id="telemetryFolders"></section>
+</div>
+
+<!-- ===================== VIEW: SETTINGS ===================== -->
+<div class="view flex-col gap-widget-gap flex-1" id="view-settings">
+<section>
+<h2 class="font-headline-md text-headline-md text-on-surface">Settings</h2>
+<p class="font-label-mono text-label-mono text-text-muted uppercase mt-1">환경 설정 · 데이터 관리</p>
+</section>
+<section class="bg-surface-panel border border-border-subtle rounded-DEFAULT p-5 flex flex-col gap-4 max-w-xl">
+<span class="font-label-mono text-label-mono text-text-muted uppercase">내 지사 (기본 입력 지사)</span>
+<select class="bg-surface-container-lowest border border-border-subtle text-on-surface font-label-mono text-label-mono rounded py-2 px-3 focus:ring-1 focus:ring-neon-green focus:border-neon-green" id="settingsBranch"></select>
+<p class="font-body-sm text-body-sm text-text-muted">설비/이력 등록 시 지사 필드의 기본값으로 사용됩니다. (PRD §8 — 실제 지사명 10개는 미확정, 현재 자리표시자 사용)</p>
+</section>
+<section class="bg-surface-panel border border-border-subtle rounded-DEFAULT p-5 flex flex-col gap-4 max-w-xl">
+<span class="font-label-mono text-label-mono text-text-muted uppercase">데이터 관리</span>
+<div class="flex flex-wrap gap-2">
+<button class="ehm-ghost flex items-center gap-2 px-3 py-2 text-text-muted border border-border-subtle rounded font-label-mono text-label-mono hover:text-on-surface hover:bg-surface-container-low transition-colors" data-export="all"><span class="material-symbols-outlined text-[18px]">download</span> 전체 내보내기 (.json)</button>
+<button class="ehm-ghost flex items-center gap-2 px-3 py-2 text-text-muted border border-border-subtle rounded font-label-mono text-label-mono hover:text-on-surface hover:bg-surface-container-low transition-colors" data-import="true"><span class="material-symbols-outlined text-[18px]">upload</span> 불러오기 / 취합</button>
+<button class="flex items-center gap-2 px-3 py-2 bg-vibrant-red/10 text-vibrant-red border border-vibrant-red/30 rounded font-label-mono text-label-mono font-bold hover:bg-vibrant-red/20 transition-colors" id="clearDataBtn"><span class="material-symbols-outlined text-[18px]">delete_forever</span> 전체 초기화</button>
+</div>
+<p class="font-body-sm text-body-sm text-text-muted">데이터는 이 브라우저(localStorage)에 저장됩니다. 지사는 내보낸 .json 파일을 인트라넷 공유 폴더에 올리고, 본사는 여러 파일을 <b>불러오기/취합</b>으로 한 번에 합칠 수 있습니다.</p>
+</section>
+</div>
+
+<!-- ===================== VIEW: 분석 (Validation & Merge) ===================== -->
+<div class="view flex-col gap-widget-gap flex-1" id="view-analysis">
+<div class="flex justify-between items-end flex-wrap gap-3">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">분석 · Validation &amp; Merge</h2>
+<p class="font-body-md text-body-md text-text-muted">본사 진단 터미널 — 지사 데이터 동기화 &amp; 무결성 분석</p>
+</div>
+<button class="px-6 py-2 bg-primary-fixed-dim text-on-primary-fixed font-label-mono text-label-mono uppercase tracking-widest flex items-center gap-2 hover:bg-neon-green transition-colors" id="commitMergeBtn">
+<span class="material-symbols-outlined">merge</span> Commit Merge
+</button>
+</div>
+<div class="grid grid-cols-12 gap-gutter flex-1">
+<!-- Dropzone + Staged Payloads -->
+<div class="col-span-12 xl:col-span-4 flex flex-col gap-widget-gap">
+<div class="bg-surface-panel p-6 flex flex-col items-center justify-center h-64 border-2 border-dashed border-border-subtle hover:border-primary-fixed-dim transition-colors cursor-pointer group relative" id="analysisDropzone">
+<div class="absolute inset-0 bg-primary-fixed-dim opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none"></div>
+<span class="material-symbols-outlined text-4xl text-text-muted group-hover:text-primary-fixed-dim mb-4 transition-colors">upload_file</span>
+<span class="font-headline-sm text-headline-sm text-on-surface mb-2">Deploy Payload</span>
+<span class="font-label-mono text-label-mono text-text-muted text-center uppercase">JSON 파일을 끌어다 놓거나<br/>클릭하여 선택</span>
+</div>
+<div class="bg-surface-panel border-t border-border-subtle flex-1 p-4">
+<div class="font-label-mono text-label-mono text-text-muted uppercase mb-4 tracking-widest" id="stagedHeader">Staged Payloads (0)</div>
+<div class="flex flex-col gap-2" id="stagedList"></div>
+</div>
+</div>
+<!-- Diagnostics Panel -->
+<div class="col-span-12 xl:col-span-8 flex flex-col gap-widget-gap">
+<div class="grid grid-cols-3 gap-widget-gap" id="analysisMetrics"></div>
+<div class="bg-surface-panel border-t border-border-subtle flex-1 flex flex-col overflow-hidden min-h-[260px]">
+<div class="p-4 border-b border-border-subtle flex justify-between items-center bg-surface-container-low">
+<span class="font-label-mono text-label-mono text-text-muted uppercase tracking-widest">Validation Diagnostics</span>
+<div class="flex gap-2">
+<button class="analysis-filter px-3 py-1 border font-label-mono text-label-mono uppercase transition-colors" data-filter="all">Filter: All</button>
+<button class="analysis-filter px-3 py-1 border font-label-mono text-label-mono uppercase transition-colors" data-filter="error">Filter: Errors</button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-elevated border-b border-border-subtle sticky top-0">
+<tr>
+<th class="p-3 font-label-mono text-label-mono text-text-muted uppercase font-normal">ID / Reference</th>
+<th class="p-3 font-label-mono text-label-mono text-text-muted uppercase font-normal">Branch Origin</th>
+<th class="p-3 font-label-mono text-label-mono text-text-muted uppercase font-normal">Diagnostic Code</th>
+<th class="p-3 font-label-mono text-label-mono text-text-muted uppercase font-normal text-right">Action</th>
+</tr>
+</thead>
+<tbody class="font-label-mono text-label-mono text-on-surface" id="analysisTableBody"></tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</main>
+
+<!-- ===================== Modal Host ===================== -->
+<div class="fixed inset-0 z-[100] hidden items-center justify-center p-4" id="modalHost">
+<div class="absolute inset-0 bg-black/70 ehm-overlay" id="modalBackdrop"></div>
+<div class="relative bg-surface-elevated border border-border-subtle rounded-DEFAULT w-full max-w-2xl max-h-[90vh] flex flex-col ehm-overlay shadow-2xl">
+<div class="flex items-center justify-between p-4 border-b border-border-subtle bg-surface-container-low">
+<h3 class="font-headline-sm text-headline-sm text-on-surface" id="modalTitle">Title</h3>
+<button class="text-text-muted hover:text-vibrant-red transition-colors" id="modalClose"><span class="material-symbols-outlined">close</span></button>
+</div>
+<div class="p-5 overflow-y-auto flex-1" id="modalBody"></div>
+<div class="flex items-center justify-end gap-2 p-4 border-t border-border-subtle bg-surface-container-low" id="modalFooter"></div>
+</div>
+</div>
+
+<!-- ===================== Toast Host ===================== -->
+<div class="fixed bottom-6 right-6 z-[120] flex flex-col gap-2 items-end" id="toastHost"></div>
+
+<!-- ===================== Hidden import file input ===================== -->
+<input type="file" id="importFile" accept=".json,application/json" multiple class="hidden" />
+<input type="file" id="analysisFile" accept=".json,application/json" multiple class="hidden" />
+
+<script>
+/* =====================================================================
+   설비 이력관리 — 동작 로직 (디자인 토큰만 사용, 디자인 변경 없음)
+   Phase 1: 마스터/이력 입력·검증, 검색·필터, JSON 내보내기/불러오기·취합
+   저장: localStorage (단일 HTML 도구, PRD 방식 A)
+   ===================================================================== */
+(function () {
+  "use strict";
+
+  // ---------- 상수 (PRD §6.3 / §6.4) ----------
+  const STORE_KEY = "ehm_store_v2";
+  const SCHEMA_VERSION = 1;
+
+  // PRD §8: 실제 지사명 10개 미확정 → 자리표시자(지사1~10) + 2자리 코드.
+  const BRANCHES = [
+    { code: "AA", name: "AA" }, { code: "AB", name: "AB" },
+    { code: "AC", name: "AC" }, { code: "AD", name: "AD" },
+    { code: "AE", name: "AE" }, { code: "AF", name: "AF" },
+    { code: "AG", name: "AG" }, { code: "AH", name: "AH" },
+    { code: "AI", name: "AI" }, { code: "AJ", name: "AJ" },
+  ];
+  const EQUIP_TYPES = [
+    { name: "펌프", code: "PMP" }, { name: "모터", code: "MOT" },
+    { name: "공조", code: "AHU" }, { name: "전기", code: "ELE" },
+    { name: "배관", code: "PIP" }, { name: "계측", code: "INS" },
+    { name: "소방", code: "FIR" }, { name: "기타", code: "ETC" },
+  ];
+  const STATUSES = ["사용중", "예비", "정비중", "폐기"];
+  const WORK_TYPES = ["정기점검", "예방정비", "고장수리", "부품교체", "개선"];
+  const RESULTS = ["정상", "이상-경미", "이상-중대", "조치완료", "조치필요"];
+  const CRITICAL_RESULTS = ["이상-중대", "조치필요"];
+
+  const MGMT_NO_RE = /^[A-Za-z0-9]{2}-[A-Za-z0-9]{3}-[0-9]{3}$/;
+  const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+  const branchName = (c) => (BRANCHES.find((b) => b.code === c) || {}).name || c;
+  const typeName = (c) => (EQUIP_TYPES.find((t) => t.code === c) || {}).name || c;
+
+  // ---------- 유틸 ----------
+  const $ = (sel, root) => (root || document).querySelector(sel);
+  const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+  const esc = (s) =>
+    String(s == null ? "" : s).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  function isValidDate(s) {
+    if (!DATE_RE.test(s)) return false;
+    const [y, m, d] = s.split("-").map(Number);
+    if (m < 1 || m > 12 || d < 1 || d > 31) return false;
+    const dt = new Date(y, m - 1, d);
+    return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
+  }
+  function quarterOf(dateStr) {
+    if (!isValidDate(dateStr)) return "";
+    const [y, m] = dateStr.split("-").map(Number);
+    return `${y}-Q${Math.floor((m - 1) / 3) + 1}`;
+  }
+  function addMonths(dateStr, months) {
+    if (!isValidDate(dateStr) || !months) return "";
+    const [y, m, d] = dateStr.split("-").map(Number);
+    const base = new Date(y, m - 1 + Number(months), d);
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${base.getFullYear()}-${pad(base.getMonth() + 1)}-${pad(base.getDate())}`;
+  }
+  function todayStr() {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }
+  function uid(prefix) {
+    return prefix + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7);
+  }
+
+  // ---------- 상태 ----------
+  let store = { version: SCHEMA_VERSION, branch: "AA", equipment: [], history: [] };
+
+  function seed() {
+    // 지사(AA~AJ)별 설비 10대씩 = 총 100대 생성
+    const NAMES = ["냉각수펌프", "급수펌프", "순환송풍기", "공조기", "주변압기",
+      "배전반", "계측제어반", "소화펌프", "비상발전기", "급기댐퍼"];
+    const STATUS_SEQ = ["사용중", "사용중", "사용중", "예비", "정비중",
+      "사용중", "사용중", "폐기", "사용중", "사용중"];
+    const eq = [];
+    BRANCHES.forEach((b) => {
+      const typeCount = {};
+      for (let j = 0; j < 10; j++) {
+        const type = EQUIP_TYPES[j % EQUIP_TYPES.length];
+        typeCount[type.code] = (typeCount[type.code] || 0) + 1;
+        const no = `${b.code}-${type.code}-${String(typeCount[type.code]).padStart(3, "0")}`;
+        eq.push({
+          관리번호: no, 설비명: `${b.name} ${j + 1}호 ${NAMES[j]}`, 설비종류: type.code,
+          지사: b.code, 세부위치: "", 제조사: "", 모델규격: "", 설치일: "",
+          상태: STATUS_SEQ[j], 정비주기: (j % 2 === 0 ? 12 : 6), 비고: "",
+        });
+      }
+    });
+    // 데모용 이력 (검증/Overview 화면이 비어있지 않도록 소량)
+    const hi = [
+      hist("AA-ELE-001", "2024-03-01", "정기점검", "정기 절연 점검", "정상", "Kim"),
+      hist("AA-MOT-001", "2023-12-15", "예방정비", "베어링 점검 및 정비 진행", "조치필요", "Lee"),
+      hist("AA-AHU-001", "2024-02-10", "정기점검", "공조기 필터 점검", "정상", "Park"),
+      hist("AA-PMP-002", "2024-01-20", "고장수리", "펌프 과열 이상 감지", "이상-중대", "Choi"),
+      hist("AB-ELE-001", "2024-03-05", "정기점검", "배전반 점검", "정상", "Jung"),
+    ];
+    store.equipment = eq;
+    store.history = hi;
+
+    function hist(no, date, work, content, result, person) {
+      return { 기록ID: uid("H"), 관리번호: no, 일자: date, 분기: quarterOf(date),
+        작업유형: work, 작업내용: content, 결과판정: result, 담당자: person,
+        부품교체: "", 비용: "", 다음예정일: "", 근거문서번호: "" };
+    }
+  }
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        store = Object.assign({ version: SCHEMA_VERSION, branch: "AA", equipment: [], history: [] }, parsed);
+        return;
+      }
+    } catch (e) { /* fallthrough to seed */ }
+    seed();
+    save();
+  }
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
+    catch (e) { toast("저장 실패: 저장 공간을 확인하세요", "error"); }
+  }
+
+  // ---------- Toast ----------
+  function toast(msg, type) {
+    const host = $("#toastHost");
+    const colors = {
+      success: "border-neon-green/40 text-neon-green",
+      error: "border-vibrant-red/40 text-vibrant-red",
+      warn: "border-amber-warning/40 text-amber-warning",
+      info: "border-border-subtle text-on-surface",
+    };
+    const el = document.createElement("div");
+    el.className =
+      "ehm-overlay bg-surface-elevated border rounded-DEFAULT px-4 py-2 font-label-mono text-label-mono shadow-xl max-w-xs " +
+      (colors[type] || colors.info);
+    el.textContent = msg;
+    host.appendChild(el);
+    setTimeout(() => { el.style.transition = "opacity .3s"; el.style.opacity = "0"; setTimeout(() => el.remove(), 300); }, 2800);
+  }
+
+  // ---------- Modal ----------
+  let modalConfirm = null;
+  function openModal(title, bodyHtml, footerButtons) {
+    $("#modalTitle").textContent = title;
+    $("#modalBody").innerHTML = bodyHtml;
+    const footer = $("#modalFooter");
+    footer.innerHTML = "";
+    (footerButtons || []).forEach((b) => {
+      const btn = document.createElement("button");
+      btn.className = b.className;
+      btn.innerHTML = b.label;
+      btn.onclick = b.onClick;
+      footer.appendChild(btn);
+    });
+    $("#modalHost").classList.remove("hidden");
+    $("#modalHost").classList.add("flex");
+  }
+  function closeModal() {
+    $("#modalHost").classList.add("hidden");
+    $("#modalHost").classList.remove("flex");
+    $("#modalBody").innerHTML = "";
+    modalConfirm = null;
+  }
+  $("#modalClose").onclick = closeModal;
+  $("#modalBackdrop").onclick = closeModal;
+
+  const BTN_PRIMARY =
+    "flex items-center gap-2 px-4 py-2 bg-neon-green/10 text-neon-green border border-neon-green/30 rounded font-label-mono text-label-mono font-bold hover:bg-neon-green/20 transition-colors";
+  const BTN_GHOST =
+    "px-4 py-2 text-text-muted border border-border-subtle rounded font-label-mono text-label-mono hover:text-on-surface hover:bg-surface-container-low transition-colors";
+  const BTN_DANGER =
+    "px-4 py-2 bg-vibrant-red/10 text-vibrant-red border border-vibrant-red/30 rounded font-label-mono text-label-mono font-bold hover:bg-vibrant-red/20 transition-colors";
+
+  // ---------- 폼 필드 헬퍼 (디자인 토큰 사용) ----------
+  const INPUT_CLS =
+    "w-full bg-surface-container-lowest border border-border-subtle text-on-surface font-label-mono text-label-mono rounded py-2 px-3 focus:ring-1 focus:ring-neon-green focus:border-neon-green placeholder:text-text-muted/50";
+  const LABEL_CLS = "font-label-mono text-label-mono text-text-muted uppercase mb-1 flex items-center gap-1";
+
+  function field(label, inner, required) {
+    return `<div class="flex flex-col">
+      <label class="${LABEL_CLS}">${esc(label)}${required ? '<span class="text-vibrant-red">✱</span>' : ""}</label>
+      ${inner}</div>`;
+  }
+  function textInput(name, value, attrs) {
+    return `<input class="${INPUT_CLS}" name="${name}" value="${esc(value || "")}" ${attrs || ""}/>`;
+  }
+  function selectInput(name, options, value, placeholder) {
+    const opts = [placeholder ? `<option value="">${esc(placeholder)}</option>` : ""]
+      .concat(options.map((o) => {
+        const v = typeof o === "string" ? o : o.value;
+        const t = typeof o === "string" ? o : o.text;
+        return `<option value="${esc(v)}" ${v === value ? "selected" : ""}>${esc(t)}</option>`;
+      }));
+    return `<select class="${INPUT_CLS}" name="${name}">${opts.join("")}</select>`;
+  }
+  function readForm(formEl) {
+    const data = {};
+    $$("[name]", formEl).forEach((el) => { data[el.name] = el.value.trim(); });
+    return data;
+  }
+
+  // ---------- 설비 마스터 폼 ----------
+  function equipmentForm(existing) {
+    const e = existing || { 지사: store.branch };
+    const typeOpts = EQUIP_TYPES.map((t) => ({ value: t.code, text: `${t.name} (${t.code})` }));
+    const brOpts = BRANCHES.map((b) => ({ value: b.code, text: b.name }));
+    return `<form id="equipForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      ${field("관리번호", textInput("관리번호", e.관리번호, `placeholder="AA-PMP-001" ${existing ? "readonly" : ""}`), true)}
+      ${field("설비명", textInput("설비명", e.설비명, 'placeholder="예: 1호 냉각수펌프"'), true)}
+      ${field("설비종류", selectInput("설비종류", typeOpts, e.설비종류, "선택"), true)}
+      ${field("지사", selectInput("지사", brOpts, e.지사, "선택"), true)}
+      ${field("세부위치", textInput("세부위치", e.세부위치, 'placeholder="동·층·실"'))}
+      ${field("상태", selectInput("상태", STATUSES, e.상태, "선택"), true)}
+      ${field("제조사", textInput("제조사", e.제조사))}
+      ${field("모델/규격", textInput("모델규격", e.모델규격))}
+      ${field("설치일", textInput("설치일", e.설치일, 'placeholder="YYYY-MM-DD"'))}
+      ${field("정비주기(개월)", textInput("정비주기", e.정비주기, 'type="number" min="0" placeholder="예: 12"'))}
+      <div class="md:col-span-2">${field("비고", `<textarea class="${INPUT_CLS}" name="비고" rows="2">${esc(e.비고 || "")}</textarea>`)}</div>
+      <p class="md:col-span-2 font-body-sm text-body-sm text-text-muted">관리번호 규칙: <span class="text-data-cyan">[지사2]-[종류3]-[일련3]</span> · 예: AA-PMP-001</p>
+    </form>`;
+  }
+
+  function validateEquipment(d, isNew) {
+    const errs = [];
+    if (!d.관리번호) errs.push("관리번호는 필수입니다.");
+    else if (!MGMT_NO_RE.test(d.관리번호)) errs.push("관리번호 형식 오류 (예: AA-PMP-001).");
+    else if (isNew && store.equipment.some((x) => x.관리번호 === d.관리번호)) errs.push("이미 존재하는 관리번호입니다.");
+    if (!d.설비명) errs.push("설비명은 필수입니다.");
+    if (!d.설비종류) errs.push("설비종류는 필수입니다.");
+    if (!d.지사) errs.push("지사는 필수입니다.");
+    if (!d.상태) errs.push("상태는 필수입니다.");
+    if (d.설치일 && !isValidDate(d.설치일)) errs.push("설치일 형식 오류 (YYYY-MM-DD).");
+    if (d.정비주기 && (isNaN(d.정비주기) || Number(d.정비주기) < 0)) errs.push("정비주기는 0 이상의 숫자입니다.");
+    return errs;
+  }
+
+  function openEquipmentModal(existing) {
+    openModal(existing ? "설비 수정" : "설비 등록", equipmentForm(existing), [
+      { label: "취소", className: BTN_GHOST, onClick: closeModal },
+      {
+        label: '<span class="material-symbols-outlined text-[18px]">save</span> 저장',
+        className: BTN_PRIMARY,
+        onClick: function () {
+          const d = readForm($("#equipForm"));
+          const errs = validateEquipment(d, !existing);
+          if (errs.length) { toast(errs[0], "error"); return; }
+          const rec = {
+            관리번호: d.관리번호, 설비명: d.설비명, 설비종류: d.설비종류, 지사: d.지사,
+            세부위치: d.세부위치, 제조사: d.제조사, 모델규격: d.모델규격, 설치일: d.설치일,
+            상태: d.상태, 정비주기: d.정비주기, 비고: d.비고,
+          };
+          if (existing) {
+            const i = store.equipment.findIndex((x) => x.관리번호 === existing.관리번호);
+            store.equipment[i] = rec;
+            toast("설비 정보가 수정되었습니다.", "success");
+          } else {
+            store.equipment.push(rec);
+            toast("설비가 등록되었습니다.", "success");
+          }
+          save(); closeModal(); renderAll();
+        },
+      },
+    ]);
+  }
+
+  // ---------- 이력 폼 ----------
+  function historyForm(existing) {
+    const h = existing || { 일자: todayStr() };
+    const eqOpts = store.equipment
+      .slice().sort((a, b) => a.관리번호.localeCompare(b.관리번호))
+      .map((e) => ({ value: e.관리번호, text: `${e.관리번호} — ${e.설비명}` }));
+    return `<form id="historyForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      ${field("관리번호 (설비)", selectInput("관리번호", eqOpts, h.관리번호, eqOpts.length ? "선택" : "등록된 설비 없음"), true)}
+      ${field("일자", textInput("일자", h.일자, 'placeholder="YYYY-MM-DD" id="histDate"'), true)}
+      ${field("분기 (자동)", textInput("분기", h.분기 || quarterOf(h.일자), 'id="histQuarter" readonly'))}
+      ${field("작업유형", selectInput("작업유형", WORK_TYPES, h.작업유형, "선택"), true)}
+      ${field("결과/판정", selectInput("결과판정", RESULTS, h.결과판정, "선택"), true)}
+      <div class="md:col-span-2">${field("작업내용", `<textarea class="${INPUT_CLS}" name="작업내용" rows="2">${esc(h.작업내용 || "")}</textarea>`, true)}</div>
+      ${field("담당자", textInput("담당자", h.담당자))}
+      ${field("부품/교체내역", textInput("부품교체", h.부품교체))}
+      ${field("비용(원)", textInput("비용", h.비용, 'type="number" min="0"'))}
+      ${field("다음 예정일", textInput("다음예정일", h.다음예정일, 'placeholder="비우면 정비주기로 자동"'))}
+      <div class="md:col-span-2">${field("근거문서번호", textInput("근거문서번호", h.근거문서번호, 'placeholder="종이 대장 번호 → 종이↔디지털 대조용"'))}</div>
+    </form>`;
+  }
+
+  function validateHistory(d) {
+    const errs = [];
+    if (!d.관리번호) errs.push("관리번호(설비) 선택은 필수입니다.");
+    else if (!store.equipment.some((x) => x.관리번호 === d.관리번호)) errs.push("미등록 관리번호입니다.");
+    if (!d.일자) errs.push("일자는 필수입니다.");
+    else if (!isValidDate(d.일자)) errs.push("일자 형식 오류 (YYYY-MM-DD).");
+    if (!d.작업유형) errs.push("작업유형은 필수입니다.");
+    if (!d.결과판정) errs.push("결과/판정은 필수입니다.");
+    if (!d.작업내용) errs.push("작업내용은 필수입니다.");
+    if (d.다음예정일 && !isValidDate(d.다음예정일)) errs.push("다음 예정일 형식 오류 (YYYY-MM-DD).");
+    if (d.비용 && (isNaN(d.비용) || Number(d.비용) < 0)) errs.push("비용은 0 이상의 숫자입니다.");
+    return errs;
+  }
+
+  function openHistoryModal(existing) {
+    openModal(existing ? "이력 수정" : "이력 등록", historyForm(existing), [
+      { label: "취소", className: BTN_GHOST, onClick: closeModal },
+      {
+        label: '<span class="material-symbols-outlined text-[18px]">save</span> 저장',
+        className: BTN_PRIMARY,
+        onClick: function () {
+          const d = readForm($("#historyForm"));
+          const errs = validateHistory(d);
+          if (errs.length) { toast(errs[0], "error"); return; }
+          let next = d.다음예정일;
+          if (!next) {
+            const eq = store.equipment.find((x) => x.관리번호 === d.관리번호);
+            if (eq && eq.정비주기) next = addMonths(d.일자, eq.정비주기);
+          }
+          const rec = {
+            기록ID: existing ? existing.기록ID : uid("H"),
+            관리번호: d.관리번호, 일자: d.일자, 분기: quarterOf(d.일자),
+            작업유형: d.작업유형, 작업내용: d.작업내용, 결과판정: d.결과판정,
+            담당자: d.담당자, 부품교체: d.부품교체, 비용: d.비용,
+            다음예정일: next, 근거문서번호: d.근거문서번호,
+          };
+          if (existing) {
+            const i = store.history.findIndex((x) => x.기록ID === existing.기록ID);
+            store.history[i] = rec;
+            toast("이력이 수정되었습니다.", "success");
+          } else {
+            store.history.push(rec);
+            toast("이력이 등록되었습니다.", "success");
+          }
+          save(); closeModal(); renderAll();
+        },
+      },
+    ]);
+  }
+
+  // 분기 자동 표시 (이력 폼 일자 입력 시)
+  document.addEventListener("input", function (ev) {
+    if (ev.target && ev.target.id === "histDate") {
+      const q = $("#histQuarter");
+      if (q) q.value = quarterOf(ev.target.value.trim());
+    }
+  });
+
+  // ---------- 상태 뱃지 / 표시 상태 ----------
+  function latestHistory(no) {
+    return store.history
+      .filter((h) => h.관리번호 === no)
+      .sort((a, b) => (a.일자 < b.일자 ? 1 : -1))[0];
+  }
+  // 원본 디자인의 Operating Status (Normal/Maintenance/Warning) 재현
+  function displayStatus(eq) {
+    const lh = latestHistory(eq.관리번호);
+    if (lh && CRITICAL_RESULTS.includes(lh.결과판정)) return "Warning";
+    if (eq.상태 === "정비중") return "Maintenance";
+    return "Normal";
+  }
+  function statusPill(kind) {
+    const map = {
+      Normal: { c: "neon-green", t: "Normal" },
+      Maintenance: { c: "amber-warning", t: "Maintenance" },
+      Warning: { c: "vibrant-red", t: "Warning" },
+    };
+    const m = map[kind];
+    return `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-${m.c}/30 text-${m.c} text-[10px] font-label-mono uppercase">
+      <span class="w-1.5 h-1.5 rounded-full bg-${m.c}"></span> ${m.t}</span>`;
+  }
+  function masterStatusPill(status) {
+    const map = {
+      "사용중": "neon-green", "예비": "data-cyan", "정비중": "amber-warning", "폐기": "text-muted",
+    };
+    const c = map[status] || "text-muted";
+    return `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-${c}/30 text-${c} text-[10px] font-label-mono uppercase">
+      <span class="w-1.5 h-1.5 rounded-full bg-${c}"></span> ${esc(status)}</span>`;
+  }
+  function resultPill(result) {
+    const c = CRITICAL_RESULTS.includes(result) ? "vibrant-red"
+      : result === "이상-경미" ? "amber-warning"
+      : result === "조치완료" ? "data-cyan" : "neon-green";
+    return `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded border border-${c}/30 text-${c} text-[10px] font-label-mono uppercase">
+      <span class="w-1.5 h-1.5 rounded-full bg-${c}"></span> ${esc(result)}</span>`;
+  }
+
+  // ---------- 렌더: Overview 표 (원본 디자인 컬럼 유지) ----------
+  function renderOverviewTable(filter) {
+    const body = $("#equipmentTableBody");
+    const f = (filter || "").toLowerCase();
+    const rows = store.equipment.map((eq) => {
+      const ds = displayStatus(eq);
+      const lh = latestHistory(eq.관리번호);
+      const last = lh ? lh.일자 : (eq.설치일 || "—");
+      const person = lh ? (lh.담당자 || "—") : "—";
+      const warnBorder = ds === "Warning" ? " border-l-2 border-vibrant-red" : "";
+      return {
+        text: (eq.설비명 + " " + ds + " " + eq.관리번호 + " " + person).toLowerCase(),
+        html: `<tr class="border-b border-border-subtle hover:bg-surface-container-low transition-colors">
+          <td class="py-3 px-4 font-label-mono${warnBorder}">${esc(eq.설비명)}</td>
+          <td class="py-3 px-4">${statusPill(ds)}</td>
+          <td class="py-3 px-4 text-right">${esc(last)}</td>
+          <td class="py-3 px-4 text-text-muted">${esc(person)}</td>
+        </tr>`,
+      };
+    });
+    const visible = rows.filter((r) => !f || r.text.includes(f));
+    body.innerHTML = visible.length
+      ? visible.map((r) => r.html).join("")
+      : `<tr><td colspan="4" class="py-8 px-4 text-center text-text-muted font-label-mono">표시할 설비가 없습니다.</td></tr>`;
+  }
+
+  // ---------- 렌더: 설비 마스터 ----------
+  function renderMaster() {
+    const q = ($("#masterSearch").value || "").toLowerCase();
+    const fb = $("#masterBranchFilter").value;
+    const ft = $("#masterTypeFilter").value;
+    const fs = $("#masterStatusFilter").value;
+    const list = store.equipment.filter((e) => {
+      if (fb && e.지사 !== fb) return false;
+      if (ft && e.설비종류 !== ft) return false;
+      if (fs && e.상태 !== fs) return false;
+      if (q) {
+        const t = (e.관리번호 + " " + e.설비명 + " " + branchName(e.지사) + " " + typeName(e.설비종류)).toLowerCase();
+        if (!t.includes(q)) return false;
+      }
+      return true;
+    }).sort((a, b) => a.관리번호.localeCompare(b.관리번호));
+
+    const body = $("#masterTableBody");
+    body.innerHTML = list.length ? list.map((e) => `
+      <tr class="border-b border-border-subtle hover:bg-surface-container-low transition-colors">
+        <td class="py-3 px-4 font-label-mono text-data-cyan">${esc(e.관리번호)}</td>
+        <td class="py-3 px-4 font-label-mono">${esc(e.설비명)}</td>
+        <td class="py-3 px-4 text-text-muted">${esc(typeName(e.설비종류))}</td>
+        <td class="py-3 px-4 text-text-muted">${esc(branchName(e.지사))}</td>
+        <td class="py-3 px-4">${masterStatusPill(e.상태)}</td>
+        <td class="py-3 px-4 text-right">${e.정비주기 ? esc(e.정비주기) : "—"}</td>
+        <td class="py-3 px-4 text-right whitespace-nowrap">
+          <button class="text-text-muted hover:text-neon-green transition-colors mr-2" data-edit-eq="${esc(e.관리번호)}" title="수정"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+          <button class="text-text-muted hover:text-vibrant-red transition-colors" data-del-eq="${esc(e.관리번호)}" title="삭제"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+        </td>
+      </tr>`).join("")
+      : `<tr><td colspan="7" class="py-8 px-4 text-center text-text-muted font-label-mono">조건에 맞는 설비가 없습니다.</td></tr>`;
+    $("#masterCount").textContent = `총 ${store.equipment.length}대 · 표시 ${list.length}대`;
+  }
+
+  // ---------- 렌더: 이력 ----------
+  function renderHistory() {
+    const q = ($("#historySearch").value || "").toLowerCase();
+    const fw = $("#historyWorkFilter").value;
+    const fr = $("#historyResultFilter").value;
+    const fq = ($("#historyQuarterFilter").value || "").toLowerCase();
+    const list = store.history.filter((h) => {
+      if (fw && h.작업유형 !== fw) return false;
+      if (fr && h.결과판정 !== fr) return false;
+      if (fq && !(h.분기 || "").toLowerCase().includes(fq)) return false;
+      if (q) {
+        const t = (h.관리번호 + " " + h.작업내용 + " " + (h.담당자 || "")).toLowerCase();
+        if (!t.includes(q)) return false;
+      }
+      return true;
+    }).sort((a, b) => (a.일자 < b.일자 ? 1 : -1));
+
+    const body = $("#historyTableBody");
+    body.innerHTML = list.length ? list.map((h) => `
+      <tr class="border-b border-border-subtle hover:bg-surface-container-low transition-colors">
+        <td class="py-3 px-4 font-label-mono">${esc(h.일자)}</td>
+        <td class="py-3 px-4 text-text-muted">${esc(h.분기 || "")}</td>
+        <td class="py-3 px-4 font-label-mono text-data-cyan">${esc(h.관리번호)}</td>
+        <td class="py-3 px-4 text-text-muted">${esc(h.작업유형)}</td>
+        <td class="py-3 px-4 max-w-[240px] truncate" title="${esc(h.작업내용)}">${esc(h.작업내용)}</td>
+        <td class="py-3 px-4">${resultPill(h.결과판정)}</td>
+        <td class="py-3 px-4 text-text-muted">${esc(h.담당자 || "—")}</td>
+        <td class="py-3 px-4 text-right whitespace-nowrap">
+          <button class="text-text-muted hover:text-neon-green transition-colors mr-2" data-edit-hi="${esc(h.기록ID)}" title="수정"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+          <button class="text-text-muted hover:text-vibrant-red transition-colors" data-del-hi="${esc(h.기록ID)}" title="삭제"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+        </td>
+      </tr>`).join("")
+      : `<tr><td colspan="8" class="py-8 px-4 text-center text-text-muted font-label-mono">조건에 맞는 이력이 없습니다.</td></tr>`;
+    $("#historyCount").textContent = `총 ${store.history.length}건 · 표시 ${list.length}건`;
+  }
+
+  // ---------- 검증 (F-9, F-10) ----------
+  function runValidation() {
+    const issues = [];
+    // 1. 중복 관리번호
+    const seen = {};
+    store.equipment.forEach((e) => { seen[e.관리번호] = (seen[e.관리번호] || 0) + 1; });
+    Object.keys(seen).filter((k) => seen[k] > 1).forEach((k) =>
+      issues.push({ level: "error", type: "중복 관리번호", msg: `관리번호 '${k}' 가 ${seen[k]}건 중복 등록됨` }));
+    // 2. 관리번호 형식 오류
+    store.equipment.filter((e) => !MGMT_NO_RE.test(e.관리번호)).forEach((e) =>
+      issues.push({ level: "error", type: "형식 오류", msg: `관리번호 형식 오류: '${e.관리번호}' (${e.설비명})` }));
+    // 3. 미등록 관리번호 참조 (이력)
+    const eqSet = new Set(store.equipment.map((e) => e.관리번호));
+    store.history.filter((h) => !eqSet.has(h.관리번호)).forEach((h) =>
+      issues.push({ level: "error", type: "미등록 참조", msg: `이력(${h.일자})이 미등록 관리번호 '${h.관리번호}' 를 참조함` }));
+    // 4. 날짜 형식 오류 (이력)
+    store.history.filter((h) => h.일자 && !isValidDate(h.일자)).forEach((h) =>
+      issues.push({ level: "warn", type: "날짜 오류", msg: `이력 날짜 형식 오류: '${h.일자}' (${h.관리번호})` }));
+    // 5. 미해결 중대 이상 (조치 필요)
+    store.equipment.forEach((e) => {
+      const lh = latestHistory(e.관리번호);
+      if (lh && CRITICAL_RESULTS.includes(lh.결과판정))
+        issues.push({ level: "warn", type: "조치 필요", msg: `${e.설비명} (${e.관리번호}): 최근 판정 '${lh.결과판정}' — 조치 확인 필요` });
+    });
+    return issues;
+  }
+
+  function renderVerify() {
+    const issues = runValidation();
+    const errCount = issues.filter((i) => i.level === "error").length;
+    const warnCount = issues.filter((i) => i.level === "warn").length;
+    const cards = [
+      { label: "총 설비", val: store.equipment.length, color: "neon-green" },
+      { label: "총 이력", val: store.history.length, color: "data-cyan" },
+      { label: "오류 (Error)", val: errCount, color: "vibrant-red" },
+      { label: "경고 (Warn)", val: warnCount, color: "amber-warning" },
+    ];
+    $("#verifySummary").innerHTML = cards.map((c) => `
+      <div class="bg-surface-panel border-t-2 border-${c.color} border-x border-b border-border-subtle p-4 rounded-DEFAULT flex flex-col gap-1">
+        <span class="font-label-mono text-label-mono text-text-muted uppercase">${esc(c.label)}</span>
+        <span class="font-data-display text-data-display text-${c.color}">${c.val}</span>
+      </div>`).join("");
+
+    const host = $("#verifyIssues");
+    host.innerHTML = issues.length ? issues.map((i) => {
+      const c = i.level === "error" ? "vibrant-red" : "amber-warning";
+      return `<div class="p-4 flex items-center gap-3">
+        <span class="material-symbols-outlined text-${c}">${i.level === "error" ? "error" : "warning"}</span>
+        <span class="font-label-mono text-label-mono text-${c} uppercase w-32 shrink-0">${esc(i.type)}</span>
+        <span class="font-body-sm text-body-sm text-on-surface">${esc(i.msg)}</span>
+      </div>`;
+    }).join("")
+      : `<div class="p-8 text-center text-neon-green font-label-mono text-label-mono flex flex-col items-center gap-2">
+          <span class="material-symbols-outlined text-3xl">verified</span>이상 없음 — 모든 데이터가 검증을 통과했습니다.</div>`;
+  }
+
+  // ---------- 렌더: Telemetry ----------
+  function renderTelemetry() {
+    const total = store.equipment.length;
+    const inUse = store.equipment.filter((e) => e.상태 === "사용중").length;
+    const maint = store.equipment.filter((e) => e.상태 === "정비중").length;
+    const critical = store.equipment.filter((e) => { const lh = latestHistory(e.관리번호); return lh && CRITICAL_RESULTS.includes(lh.결과판정); }).length;
+    const cards = [
+      { label: "총 설비", val: total, color: "neon-green" },
+      { label: "사용중", val: inUse, color: "neon-green" },
+      { label: "정비중", val: maint, color: "amber-warning" },
+      { label: "조치 필요", val: critical, color: "vibrant-red" },
+    ];
+    $("#telemetrySummary").innerHTML = cards.map((c) => `
+      <div class="bg-surface-panel border-t-2 border-${c.color} border-x border-b border-border-subtle p-4 rounded-DEFAULT flex flex-col gap-1">
+        <span class="font-label-mono text-label-mono text-text-muted uppercase">${esc(c.label)}</span>
+        <span class="font-data-display text-data-display text-${c.color}">${c.val}</span>
+      </div>`).join("");
+
+    // 지사별 폴더 (지사명으로 1개씩) — 세모를 누르면 설비목록 펼침
+    const host = $("#telemetryFolders");
+    host.innerHTML = BRANCHES.map((b) => {
+      const list = store.equipment
+        .filter((e) => e.지사 === b.code)
+        .sort((a, b2) => a.관리번호.localeCompare(b2.관리번호));
+      const rows = list.map((e) => `
+        <tr class="border-b border-border-subtle hover:bg-surface-container-low transition-colors">
+          <td class="py-2 px-4 font-label-mono text-data-cyan">${esc(e.관리번호)}</td>
+          <td class="py-2 px-4 font-label-mono">${esc(e.설비명)}</td>
+          <td class="py-2 px-4 text-text-muted">${esc(typeName(e.설비종류))}</td>
+          <td class="py-2 px-4">${masterStatusPill(e.상태)}</td>
+        </tr>`).join("");
+      return `<div class="bg-surface-panel border border-border-subtle rounded-DEFAULT overflow-hidden">
+        <button class="folder-toggle w-full flex items-center justify-between p-4 hover:bg-surface-elevated transition-colors" data-branch="${esc(b.code)}">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-text-muted folder-caret transition-transform duration-200">expand_more</span>
+            <span class="material-symbols-outlined text-amber-warning">folder</span>
+            <span class="font-label-mono text-label-mono text-on-surface uppercase">지사 ${esc(b.name)}</span>
+          </div>
+          <span class="font-data-display text-body-sm text-text-muted">${list.length} 설비</span>
+        </button>
+        <div class="folder-body hidden border-t border-border-subtle overflow-x-auto">
+          ${list.length ? `<table class="w-full text-left border-collapse">
+            <thead><tr class="bg-surface-container-highest border-b border-border-subtle">
+              <th class="py-2 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">관리번호</th>
+              <th class="py-2 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">설비명</th>
+              <th class="py-2 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">종류</th>
+              <th class="py-2 px-4 font-label-mono text-label-mono text-text-muted uppercase font-semibold">상태</th>
+            </tr></thead>
+            <tbody class="font-data-display text-body-sm text-on-surface">${rows}</tbody>
+          </table>` : `<div class="p-4 text-text-muted font-label-mono text-label-mono">설비 없음</div>`}
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  // ---------- 분석 (Validation & Merge) ----------
+  let staged = [];            // 스테이징된 페이로드
+  let analysisFilter = "all"; // all | error
+
+  function branchOf(no) {
+    const e = store.equipment.find((x) => x.관리번호 === no);
+    return e ? e.지사 : "-";
+  }
+
+  // 설비/이력 배열을 진단하여 행 목록 반환
+  function analyzeData(equipment, history) {
+    const rows = [];
+    const seen = {};
+    equipment.forEach((e) => { seen[e.관리번호] = (seen[e.관리번호] || 0) + 1; });
+    const eqByNo = new Map(equipment.map((e) => [e.관리번호, e]));
+    equipment.forEach((e) => {
+      if (seen[e.관리번호] > 1)
+        rows.push({ ref: e.관리번호, branch: e.지사, code: "ERR_DUPLICATE_KEY", level: "error", eqNo: e.관리번호 });
+      if (!MGMT_NO_RE.test(e.관리번호))
+        rows.push({ ref: e.관리번호, branch: e.지사, code: "ERR_INVALID_ID", level: "error", eqNo: e.관리번호 });
+      if (e.설치일 && !isValidDate(e.설치일))
+        rows.push({ ref: e.관리번호, branch: e.지사, code: "WARN_TIMESTAMP_SKEW", level: "warn", eqNo: e.관리번호 });
+      if (e.정비주기 && (isNaN(e.정비주기) || Number(e.정비주기) < 0))
+        rows.push({ ref: e.관리번호, branch: e.지사, code: "WARN_VALUE_OUT_OF_BOUNDS", level: "warn", eqNo: e.관리번호 });
+    });
+    const eqSet = new Set(equipment.map((e) => e.관리번호));
+    history.forEach((h) => {
+      const br = (eqByNo.get(h.관리번호) || {}).지사 || "-";
+      if (!eqSet.has(h.관리번호))
+        rows.push({ ref: h.관리번호, branch: br, code: "ERR_UNKNOWN_REF", level: "error", hiId: h.기록ID });
+      if (h.일자 && !isValidDate(h.일자))
+        rows.push({ ref: h.관리번호, branch: br, code: "WARN_TIMESTAMP_SKEW", level: "warn", hiId: h.기록ID });
+      if (h.비용 && (isNaN(h.비용) || Number(h.비용) < 0))
+        rows.push({ ref: h.관리번호, branch: br, code: "WARN_VALUE_OUT_OF_BOUNDS", level: "warn", hiId: h.기록ID });
+    });
+    // 미해결 중대 이상
+    equipment.forEach((e) => {
+      const lh = history
+        .filter((h) => h.관리번호 === e.관리번호)
+        .sort((a, b) => (a.일자 < b.일자 ? 1 : -1))[0];
+      if (lh && CRITICAL_RESULTS.includes(lh.결과판정))
+        rows.push({ ref: e.관리번호, branch: e.지사, code: "WARN_UNRESOLVED_ACTION", level: "warn", eqNo: e.관리번호 });
+    });
+    return rows;
+  }
+
+  // 현재 데이터 + 스테이징 페이로드를 합친 미리보기 + 충돌
+  function buildPreview() {
+    const eq = store.equipment.slice();
+    const hi = store.history.slice();
+    const eqMap = new Map(eq.map((e) => [e.관리번호, e]));
+    const hiSet = new Set(hi.map((h) => h.기록ID));
+    const conflictRows = [];
+    staged.filter((s) => s.payload).forEach((s) => {
+      (s.payload.equipment || []).forEach((e) => {
+        if (!e.관리번호) return;
+        const ex = eqMap.get(e.관리번호);
+        if (!ex) { eq.push(e); eqMap.set(e.관리번호, e); }
+        else if (JSON.stringify(ex) !== JSON.stringify(e))
+          conflictRows.push({ ref: e.관리번호, branch: e.지사 || "-", code: "ERR_DUPLICATE_KEY", level: "error", eqNo: e.관리번호 });
+      });
+      (s.payload.history || []).forEach((h) => {
+        const id = h.기록ID || uid("H");
+        if (!hiSet.has(id)) { hi.push(Object.assign({}, h, { 기록ID: id })); hiSet.add(id); }
+      });
+    });
+    return { eq, hi, conflictRows };
+  }
+
+  function stageFiles(fileList) {
+    const files = Array.from(fileList);
+    if (!files.length) return;
+    let done = 0;
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = function () {
+        const item = { name: file.name, size: file.size };
+        try {
+          const data = JSON.parse(reader.result);
+          if (data.schema !== "ehm") throw new Error("schema");
+          const diag = analyzeData(data.equipment || [], data.history || []);
+          item.payload = data;
+          item.diag = diag;
+          item.status = diag.length ? "warnings" : "clean";
+        } catch (e) {
+          item.payload = null; item.diag = [];
+          item.status = "failed";
+        }
+        staged.push(item);
+        done++;
+        if (done === files.length) renderAnalysis();
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  function commitMerge() {
+    const mergeable = staged.filter((s) => s.payload);
+    if (!mergeable.length) { toast("병합할 페이로드가 없습니다 (Failed 제외).", "warn"); return; }
+    let addedEq = 0, addedHi = 0, conflicts = 0, skipped = 0;
+    const eqMap = new Map(store.equipment.map((e) => [e.관리번호, e]));
+    const hiSet = new Set(store.history.map((h) => h.기록ID));
+    mergeable.forEach((s) => {
+      (s.payload.equipment || []).forEach((e) => {
+        if (!e.관리번호) return;
+        const ex = eqMap.get(e.관리번호);
+        if (!ex) { store.equipment.push(e); eqMap.set(e.관리번호, e); addedEq++; }
+        else if (JSON.stringify(ex) !== JSON.stringify(e)) conflicts++;
+        else skipped++;
+      });
+      (s.payload.history || []).forEach((h) => {
+        const id = h.기록ID || uid("H"); h.기록ID = id;
+        if (!hiSet.has(id)) { store.history.push(h); hiSet.add(id); addedHi++; }
+        else skipped++;
+      });
+    });
+    save(); staged = []; renderAll(); renderAnalysis();
+    toast(`병합 완료 — 설비 +${addedEq}, 이력 +${addedHi}, 충돌 ${conflicts}, 중복 ${skipped}`, conflicts ? "warn" : "success");
+  }
+
+  function renderAnalysis() {
+    // 스테이징 목록
+    $("#stagedHeader").textContent = `Staged Payloads (${staged.length})`;
+    const sl = $("#stagedList");
+    const meta = {
+      clean: { c: "data-cyan", icon: "data_object", bl: "" },
+      warnings: { c: "amber-warning", icon: "warning", bl: " border-l-2 border-l-amber-warning" },
+      failed: { c: "vibrant-red", icon: "error", bl: " border-l-2 border-l-vibrant-red" },
+    };
+    sl.innerHTML = staged.length ? staged.map((s, i) => {
+      const m = meta[s.status];
+      const right = s.status === "failed" ? "Failed"
+        : s.status === "warnings" ? (s.diag.length + " issues")
+        : (Math.round(s.size / 1024) + " KB");
+      return `<div class="flex items-center justify-between p-3 bg-surface-elevated border border-border-subtle${m.bl}">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="material-symbols-outlined text-${m.c} font-label-mono">${m.icon}</span>
+          <span class="font-label-mono text-label-mono text-on-surface truncate">${esc(s.name)}</span>
+        </div>
+        <div class="flex items-center gap-3 shrink-0">
+          <span class="font-label-mono text-label-mono text-${m.c}">${esc(right)}</span>
+          <button class="text-text-muted hover:text-vibrant-red transition-colors" data-unstage="${i}" title="제거"><span class="material-symbols-outlined text-[16px]">close</span></button>
+        </div>
+      </div>`;
+    }).join("") : `<div class="font-label-mono text-label-mono text-text-muted/60 uppercase">대기 중인 페이로드 없음</div>`;
+
+    // 미리보기 분석 (현재 데이터 + 스테이징)
+    const prev = buildPreview();
+    const diag = analyzeData(prev.eq, prev.hi).concat(prev.conflictRows);
+    const errors = diag.filter((d) => d.level === "error");
+    const warns = diag.filter((d) => d.level === "warn");
+    const flagged = new Set(diag.map((d) => d.ref));
+    const clean = Math.max(0, prev.eq.length + prev.hi.length - flagged.size);
+
+    $("#analysisMetrics").innerHTML = [
+      { label: "Critical Errors", val: errors.length, color: "vibrant-red" },
+      { label: "Data Conflicts", val: warns.length, color: "amber-warning" },
+      { label: "Clean Records", val: clean.toLocaleString(), color: "neon-green" },
+    ].map((m) => `<div class="bg-surface-panel border-t border-border-subtle p-4 border-l-2 border-l-${m.color} flex flex-col">
+        <span class="font-label-mono text-label-mono text-text-muted uppercase mb-2">${m.label}</span>
+        <span class="font-data-display text-data-display text-${m.color}">${m.val}</span>
+      </div>`).join("");
+
+    const rows = analysisFilter === "error" ? diag.filter((d) => d.level === "error") : diag;
+    const body = $("#analysisTableBody");
+    body.innerHTML = rows.length ? rows.map((d) => {
+      const c = d.level === "error" ? "vibrant-red" : "amber-warning";
+      const action = d.level === "error"
+        ? (d.code === "ERR_MALFORMED_JSON" ? "Reject" : "Resolve")
+        : (d.code === "WARN_UNRESOLVED_ACTION" ? "Review" : "Ignore");
+      const handle = d.hiId ? `data-diag-hi="${esc(d.hiId)}"` : (d.eqNo ? `data-diag-eq="${esc(d.eqNo)}"` : "");
+      return `<tr class="border-b border-border-subtle bg-surface-panel hover:bg-surface-elevated transition-colors">
+        <td class="p-3"><span class="inline-flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-${c}"></span>${esc(d.ref)}</span></td>
+        <td class="p-3 text-text-muted">${esc(branchName(d.branch))}</td>
+        <td class="p-3 text-${c}">${esc(d.code)}</td>
+        <td class="p-3 text-right"><button class="text-data-cyan hover:underline uppercase tracking-wider" ${handle}>${action}</button></td>
+      </tr>`;
+    }).join("") : `<tr><td colspan="4" class="p-8 text-center text-neon-green font-label-mono">이상 없음 — 모든 레코드가 검증을 통과했습니다.</td></tr>`;
+
+    // 필터 버튼 스타일
+    $$(".analysis-filter").forEach((b) => {
+      const active = b.dataset.filter === analysisFilter;
+      if (b.dataset.filter === "error") {
+        b.className = "analysis-filter px-3 py-1 border font-label-mono text-label-mono uppercase transition-colors " +
+          (active ? "bg-vibrant-red text-white border-vibrant-red" : "border-vibrant-red text-vibrant-red hover:bg-vibrant-red hover:text-white");
+      } else {
+        b.className = "analysis-filter px-3 py-1 border font-label-mono text-label-mono uppercase transition-colors " +
+          (active ? "bg-surface-elevated text-on-surface border-text-muted" : "border-border-subtle text-text-muted hover:text-on-surface hover:border-text-muted");
+      }
+    });
+  }
+
+  // ---------- 필터 옵션 채우기 ----------
+  function fillFilters() {
+    const opt = (v, t) => `<option value="${esc(v)}">${esc(t)}</option>`;
+    $("#masterBranchFilter").innerHTML = opt("", "전체 지사") + BRANCHES.map((b) => opt(b.code, b.name)).join("");
+    $("#masterTypeFilter").innerHTML = opt("", "전체 종류") + EQUIP_TYPES.map((t) => opt(t.code, t.name)).join("");
+    $("#masterStatusFilter").innerHTML = opt("", "전체 상태") + STATUSES.map((s) => opt(s, s)).join("");
+    $("#historyWorkFilter").innerHTML = opt("", "전체 작업유형") + WORK_TYPES.map((w) => opt(w, w)).join("");
+    $("#historyResultFilter").innerHTML = opt("", "전체 결과") + RESULTS.map((r) => opt(r, r)).join("");
+    const sb = $("#settingsBranch");
+    sb.innerHTML = BRANCHES.map((b) => `<option value="${b.code}" ${b.code === store.branch ? "selected" : ""}>${esc(b.name)}</option>`).join("");
+  }
+
+  // ---------- 내보내기 / 불러오기 (F-7, F-8) ----------
+  function exportData(scope) {
+    const payload = {
+      schema: "ehm",
+      version: SCHEMA_VERSION,
+      exportedAt: new Date().toISOString(),
+      branch: store.branch,
+      equipment: scope === "history" ? [] : store.equipment,
+      history: scope === "equipment" ? [] : store.history,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const stamp = todayStr();
+    a.href = url;
+    a.download = `설비이력_${branchName(store.branch)}_${scope}_${stamp}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    toast("파일을 내보냈습니다.", "success");
+  }
+
+  function importFiles(fileList) {
+    const files = Array.from(fileList);
+    if (!files.length) return;
+    let added = { eq: 0, hi: 0 }, conflicts = [], skipped = 0, done = 0;
+    const eqIndex = new Map(store.equipment.map((e) => [e.관리번호, e]));
+    const hiIndex = new Set(store.history.map((h) => h.기록ID));
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = function () {
+        try {
+          const data = JSON.parse(reader.result);
+          if (data.schema !== "ehm") throw new Error("형식 불일치");
+          (data.equipment || []).forEach((e) => {
+            if (!e.관리번호) return;
+            const existing = eqIndex.get(e.관리번호);
+            if (!existing) {
+              store.equipment.push(e); eqIndex.set(e.관리번호, e); added.eq++;
+            } else if (JSON.stringify(existing) !== JSON.stringify(e)) {
+              conflicts.push(`설비 '${e.관리번호}' (${e.설비명}) — 기존 데이터와 다름 (기존 값 유지)`);
+            } else { skipped++; }
+          });
+          (data.history || []).forEach((h) => {
+            const id = h.기록ID || uid("H");
+            h.기록ID = id;
+            if (!hiIndex.has(id)) { store.history.push(h); hiIndex.add(id); added.hi++; }
+            else { skipped++; }
+          });
+        } catch (err) {
+          conflicts.push(`'${file.name}' 읽기 실패: ${err.message}`);
+        }
+        done++;
+        if (done === files.length) {
+          save(); renderAll();
+          showImportReport(added, conflicts, skipped, files.length);
+        }
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  function showImportReport(added, conflicts, skipped, fileCount) {
+    const body = `
+      <div class="flex flex-col gap-3 font-body-sm text-body-sm">
+        <p class="text-on-surface">${fileCount}개 파일 취합 완료.</p>
+        <div class="grid grid-cols-3 gap-2">
+          <div class="bg-surface-container-lowest border border-border-subtle rounded p-3 text-center">
+            <div class="font-data-display text-data-display text-neon-green">${added.eq}</div>
+            <div class="font-label-mono text-label-mono text-text-muted uppercase">설비 추가</div></div>
+          <div class="bg-surface-container-lowest border border-border-subtle rounded p-3 text-center">
+            <div class="font-data-display text-data-display text-data-cyan">${added.hi}</div>
+            <div class="font-label-mono text-label-mono text-text-muted uppercase">이력 추가</div></div>
+          <div class="bg-surface-container-lowest border border-border-subtle rounded p-3 text-center">
+            <div class="font-data-display text-data-display text-text-muted">${skipped}</div>
+            <div class="font-label-mono text-label-mono text-text-muted uppercase">중복 제외</div></div>
+        </div>
+        ${conflicts.length ? `<div class="mt-2">
+          <div class="font-label-mono text-label-mono text-amber-warning uppercase mb-1">충돌/경고 ${conflicts.length}건</div>
+          <div class="bg-surface-container-lowest border border-amber-warning/30 rounded p-3 max-h-48 overflow-y-auto flex flex-col gap-1">
+            ${conflicts.map((c) => `<div class="text-amber-warning">• ${esc(c)}</div>`).join("")}
+          </div></div>` : `<p class="text-neon-green font-label-mono text-label-mono uppercase">충돌 없음</p>`}
+      </div>`;
+    openModal("불러오기 / 취합 결과", body, [
+      { label: "확인", className: BTN_PRIMARY, onClick: closeModal },
+    ]);
+  }
+
+  // ---------- 뷰 전환 ----------
+  function switchView(view) {
+    $$(".view").forEach((v) => v.classList.remove("active"));
+    const target = $("#view-" + view);
+    if (target) target.classList.add("active");
+    // 사이드바 active 스타일 이동 (원본 디자인의 active 클래스 사용)
+    $$("#sideNav .nav-link").forEach((a) => {
+      const isActive = a.dataset.view === view;
+      a.classList.toggle("bg-surface-container-high", isActive);
+      a.classList.toggle("text-primary-fixed-dim", isActive);
+      a.classList.toggle("border-l-4", isActive);
+      a.classList.toggle("border-primary-fixed-dim", isActive);
+      a.classList.toggle("opacity-90", isActive);
+      a.classList.toggle("text-text-muted", !isActive);
+    });
+    if (view === "alarms") renderVerify();
+    if (view === "telemetry") renderTelemetry();
+    if (view === "analysis") renderAnalysis();
+  }
+
+  // ---------- 전체 렌더 ----------
+  function renderAll() {
+    renderOverviewTable($("#equipmentSearch") ? $("#equipmentSearch").value : "");
+    renderMaster();
+    renderHistory();
+    if ($("#view-alarms").classList.contains("active")) renderVerify();
+    if ($("#view-telemetry").classList.contains("active")) renderTelemetry();
+    if ($("#view-analysis").classList.contains("active")) renderAnalysis();
+  }
+
+  // ---------- 이벤트 바인딩 ----------
+  function bind() {
+    // 사이드바 네비
+    $("#sideNav").addEventListener("click", function (e) {
+      const link = e.target.closest(".nav-link");
+      if (!link) return;
+      e.preventDefault();
+      switchView(link.dataset.view);
+    });
+
+    // Overview 검색 (원본 동작 보존)
+    $("#equipmentSearch").addEventListener("input", (e) => renderOverviewTable(e.target.value));
+
+    // 마스터 검색/필터
+    ["masterSearch", "masterBranchFilter", "masterTypeFilter", "masterStatusFilter"].forEach((id) =>
+      $("#" + id).addEventListener("input", renderMaster));
+    // 이력 검색/필터
+    ["historySearch", "historyWorkFilter", "historyResultFilter", "historyQuarterFilter"].forEach((id) =>
+      $("#" + id).addEventListener("input", renderHistory));
+
+    // 등록 버튼
+    $("#addEquipmentBtn").addEventListener("click", () => openEquipmentModal(null));
+    $("#addHistoryBtn").addEventListener("click", () => {
+      if (!store.equipment.length) { toast("먼저 설비를 등록하세요.", "warn"); return; }
+      openHistoryModal(null);
+    });
+
+    // 표 내 수정/삭제 (위임)
+    document.body.addEventListener("click", function (e) {
+      const editEq = e.target.closest("[data-edit-eq]");
+      const delEq = e.target.closest("[data-del-eq]");
+      const editHi = e.target.closest("[data-edit-hi]");
+      const delHi = e.target.closest("[data-del-hi]");
+      if (editEq) {
+        const eq = store.equipment.find((x) => x.관리번호 === editEq.dataset.editEq);
+        if (eq) openEquipmentModal(eq);
+      } else if (delEq) {
+        const no = delEq.dataset.delEq;
+        const cnt = store.history.filter((h) => h.관리번호 === no).length;
+        confirmModal("설비 삭제", `'${no}' 설비를 삭제합니다.${cnt ? ` 연결된 이력 ${cnt}건도 함께 삭제됩니다.` : ""}`, () => {
+          store.equipment = store.equipment.filter((x) => x.관리번호 !== no);
+          store.history = store.history.filter((h) => h.관리번호 !== no);
+          save(); closeModal(); renderAll(); toast("삭제되었습니다.", "success");
+        });
+      } else if (editHi) {
+        const h = store.history.find((x) => x.기록ID === editHi.dataset.editHi);
+        if (h) openHistoryModal(h);
+      } else if (delHi) {
+        const id = delHi.dataset.delHi;
+        confirmModal("이력 삭제", "이 이력 기록을 삭제합니다.", () => {
+          store.history = store.history.filter((x) => x.기록ID !== id);
+          save(); closeModal(); renderAll(); toast("삭제되었습니다.", "success");
+        });
+      }
+    });
+
+    // 내보내기 / 불러오기 버튼 (위임)
+    document.body.addEventListener("click", function (e) {
+      const exp = e.target.closest("[data-export]");
+      const imp = e.target.closest("[data-import]");
+      if (exp) exportData(exp.dataset.export);
+      if (imp) $("#importFile").click();
+    });
+    $("#importFile").addEventListener("change", function () {
+      importFiles(this.files);
+      this.value = "";
+    });
+
+    // Telemetry 지사 폴더 펼치기/접기 (세모 클릭)
+    $("#telemetryFolders").addEventListener("click", function (e) {
+      const t = e.target.closest(".folder-toggle");
+      if (!t) return;
+      const body = t.nextElementSibling;
+      const caret = t.querySelector(".folder-caret");
+      const expanded = body.classList.toggle("hidden") === false;
+      caret.style.transform = expanded ? "rotate(180deg)" : "";
+    });
+
+    // 검증 재실행
+    $("#revalidateBtn").addEventListener("click", () => { renderVerify(); toast("재검증 완료.", "info"); });
+
+    // 분석: 드롭존 + 스테이징 + 병합
+    const dz = $("#analysisDropzone");
+    dz.addEventListener("click", () => $("#analysisFile").click());
+    dz.addEventListener("dragover", (e) => { e.preventDefault(); dz.classList.add("border-primary-fixed-dim"); });
+    dz.addEventListener("dragleave", () => dz.classList.remove("border-primary-fixed-dim"));
+    dz.addEventListener("drop", (e) => {
+      e.preventDefault(); dz.classList.remove("border-primary-fixed-dim");
+      if (e.dataTransfer && e.dataTransfer.files) stageFiles(e.dataTransfer.files);
+    });
+    $("#analysisFile").addEventListener("change", function () { stageFiles(this.files); this.value = ""; });
+    $("#commitMergeBtn").addEventListener("click", commitMerge);
+    $("#view-analysis").addEventListener("click", function (e) {
+      const filterBtn = e.target.closest(".analysis-filter");
+      const unstage = e.target.closest("[data-unstage]");
+      const diagEq = e.target.closest("[data-diag-eq]");
+      const diagHi = e.target.closest("[data-diag-hi]");
+      if (filterBtn) { analysisFilter = filterBtn.dataset.filter; renderAnalysis(); }
+      else if (unstage) { staged.splice(Number(unstage.dataset.unstage), 1); renderAnalysis(); }
+      else if (diagEq) {
+        const eq = store.equipment.find((x) => x.관리번호 === diagEq.dataset.diagEq);
+        if (eq) openEquipmentModal(eq); else toast("해당 설비를 찾을 수 없습니다 (스테이징 데이터).", "warn");
+      } else if (diagHi) {
+        const h = store.history.find((x) => x.기록ID === diagHi.dataset.diagHi);
+        if (h) openHistoryModal(h); else toast("해당 이력을 찾을 수 없습니다 (스테이징 데이터).", "warn");
+      }
+    });
+
+    // 설정: 지사 변경
+    $("#settingsBranch").addEventListener("change", function () {
+      store.branch = this.value; save(); toast("기본 지사가 변경되었습니다.", "success");
+    });
+    // 설정: 전체 초기화
+    $("#clearDataBtn").addEventListener("click", () => {
+      confirmModal("전체 초기화", "모든 설비/이력 데이터를 삭제하고 초기 상태로 되돌립니다. 되돌릴 수 없습니다.", () => {
+        localStorage.removeItem(STORE_KEY);
+        seed(); save(); closeModal(); fillFilters(); renderAll(); toast("초기화되었습니다.", "success");
+      }, BTN_DANGER);
+    });
+
+    // 동기화 아이콘
+    $("#syncBtn").addEventListener("click", () => { load(); fillFilters(); renderAll(); toast("데이터를 새로고침했습니다.", "info"); });
+
+    // ESC 로 모달 닫기
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+  }
+
+  function confirmModal(title, msg, onYes, yesClass) {
+    openModal(title, `<p class="font-body-md text-body-md text-on-surface">${esc(msg)}</p>`, [
+      { label: "취소", className: BTN_GHOST, onClick: closeModal },
+      { label: "확인", className: yesClass || BTN_PRIMARY, onClick: onYes },
+    ]);
+  }
+
+  // ---------- 상단 시계 ----------
+  function startClock() {
+    const el = $("#topClock");
+    function tick() {
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      el.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())} ACTIVE`;
+    }
+    tick(); setInterval(tick, 1000);
+  }
+
+  // ---------- 초기화 ----------
+  document.addEventListener("DOMContentLoaded", function () {
+    load();
+    fillFilters();
+    bind();
+    renderAll();
+    switchView("overview"); // 첫 화면은 원본 디자인 대시보드
+    startClock();
+  });
+})();
+</script>
+</body></html>

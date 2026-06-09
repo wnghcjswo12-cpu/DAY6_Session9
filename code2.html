@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NEXUS MONITOR - Validation &amp; Merge</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "border-subtle": "#2D3846",
+                        "surface-container-high": "#262a31",
+                        "background": "#10141a",
+                        "surface-panel": "#141B24",
+                        "surface-elevated": "#1C2530",
+                        "tertiary-fixed-dim": "#ffb4aa",
+                        "amber-warning": "#FFB800",
+                        "tertiary-fixed": "#ffdad5",
+                        "secondary-fixed-dim": "#ffba20",
+                        "outline": "#84967e",
+                        "primary-fixed": "#72ff70",
+                        "tertiary-container": "#ffd2cc",
+                        "on-tertiary-fixed": "#410001",
+                        "on-error": "#690005",
+                        "surface-tint": "#00e639",
+                        "primary-fixed-dim": "#00e639",
+                        "inverse-primary": "#006e16",
+                        "surface-container-low": "#181c22",
+                        "tertiary": "#fff7f6",
+                        "on-primary": "#003907",
+                        "primary": "#ebffe2",
+                        "surface-variant": "#31353c",
+                        "on-secondary": "#412d00",
+                        "neon-green": "#00FF41",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-highest": "#31353c",
+                        "on-background": "#dfe2eb",
+                        "on-surface-variant": "#b9ccb2",
+                        "on-tertiary": "#690003",
+                        "data-cyan": "#00F0FF",
+                        "surface-container": "#1c2026",
+                        "text-muted": "#8A94A6",
+                        "surface-container-lowest": "#0a0e14",
+                        "on-primary-fixed-variant": "#00530e",
+                        "secondary-fixed": "#ffdea8",
+                        "surface-bright": "#353940",
+                        "vibrant-red": "#FF3B30",
+                        "secondary-container": "#feb700",
+                        "on-tertiary-fixed-variant": "#930005",
+                        "surface": "#10141a",
+                        "secondary": "#ffdb9d",
+                        "on-surface": "#dfe2eb",
+                        "on-secondary-fixed": "#271900",
+                        "on-tertiary-container": "#c4010b",
+                        "surface-deep": "#0A0E14",
+                        "outline-variant": "#3b4b37",
+                        "primary-container": "#00ff41",
+                        "on-secondary-container": "#6b4b00",
+                        "inverse-surface": "#dfe2eb",
+                        "surface-dim": "#10141a",
+                        "error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#5e4200",
+                        "on-primary-container": "#007117",
+                        "inverse-on-surface": "#2d3137",
+                        "error": "#ffb4ab",
+                        "text-primary": "#E2E6EE",
+                        "on-primary-fixed": "#002203"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.125rem",
+                        lg: "0.25rem",
+                        xl: "0.5rem",
+                        full: "0.75rem"
+                    },
+                    spacing: {
+                        gutter: "16px",
+                        unit: "4px",
+                        "margin-desktop": "24px",
+                        "widget-gap": "12px",
+                        "margin-mobile": "16px"
+                    },
+                    fontFamily: {
+                        "headline-lg": ["Hanken Grotesk"],
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "data-display": ["JetBrains Mono"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"]
+                    },
+                    fontSize: {
+                        "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "label-mono": ["11px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "500" }],
+                        "headline-sm": ["18px", { lineHeight: "24px", fontWeight: "600" }],
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        "headline-lg-mobile": ["24px", { lineHeight: "30px", fontWeight: "700" }],
+                        "data-display": ["28px", { lineHeight: "32px", fontWeight: "700" }],
+                        "body-sm": ["12px", { lineHeight: "18px", fontWeight: "400" }],
+                        "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md h-screen overflow-hidden flex">
+<!-- SideNavBar Component -->
+<nav class="fixed left-0 top-0 h-full z-40 flex flex-col docked left-0 h-full w-64 bg-surface-container-lowest dark:bg-surface-container-lowest border-r border-border-subtle dark:border-border-subtle">
+<div class="px-margin-desktop py-6">
+<div class="font-headline-sm text-headline-sm font-bold text-neon-green dark:text-neon-green mb-8">
+                Control Center
+                <div class="font-label-mono text-label-mono text-text-muted mt-1 uppercase tracking-wider">Station Alpha-12</div>
+</div>
+<div class="flex flex-col gap-2">
+<!-- Overview -->
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150" href="#">
+<span class="material-symbols-outlined font-label-mono text-label-mono">dashboard</span>
+<span class="font-label-mono text-label-mono uppercase">Overview</span>
+</a>
+<!-- Telemetry (Active for Data Merge Context) -->
+<a class="flex items-center gap-3 px-4 py-3 bg-surface-container-high text-primary-fixed-dim border-l-4 border-primary-fixed-dim opacity-90 transition-opacity" href="#">
+<span class="material-symbols-outlined font-label-mono text-label-mono fill-icon">analytics</span>
+<span class="font-label-mono text-label-mono uppercase">Telemetry</span>
+</a>
+<!-- Equipment -->
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150" href="#">
+<span class="material-symbols-outlined font-label-mono text-label-mono">precision_manufacturing</span>
+<span class="font-label-mono text-label-mono uppercase">Equipment</span>
+</a>
+<!-- Alarms -->
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150" href="#">
+<span class="material-symbols-outlined font-label-mono text-label-mono">notifications_active</span>
+<span class="font-label-mono text-label-mono uppercase">Alarms</span>
+</a>
+<!-- Logs -->
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150" href="#">
+<span class="material-symbols-outlined font-label-mono text-label-mono">description</span>
+<span class="font-label-mono text-label-mono uppercase">Logs</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-3 px-4 py-3 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150" href="#">
+<span class="material-symbols-outlined font-label-mono text-label-mono">settings</span>
+<span class="font-label-mono text-label-mono uppercase">Settings</span>
+</a>
+</div>
+</div>
+<div class="mt-auto px-margin-desktop py-6">
+<button class="w-full mb-6 py-2 border-2 border-vibrant-red text-vibrant-red font-label-mono text-label-mono uppercase tracking-widest hover:bg-vibrant-red hover:text-white transition-colors duration-200">
+                EMERGENCY STOP
+            </button>
+<div class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-2 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150" href="#">
+<span class="material-symbols-outlined font-label-mono text-label-mono">help_center</span>
+<span class="font-label-mono text-label-mono uppercase">Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-text-muted hover:text-on-surface hover:bg-surface-container-low transition-colors duration-150" href="#">
+<span class="material-symbols-outlined font-label-mono text-label-mono">build</span>
+<span class="font-label-mono text-label-mono uppercase">Diagnostics</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- TopNavBar Component -->
+<header class="fixed top-0 right-0 left-64 z-50 flex justify-between items-center px-margin-desktop h-16 bg-surface-container-low dark:bg-surface-container-low border-b border-border-subtle dark:border-border-subtle docked top-0 w-full">
+<div class="flex items-center gap-8">
+<div class="font-data-display text-data-display font-black text-neon-green dark:text-neon-green tracking-tighter">
+                NEXUS MONITOR
+            </div>
+<nav class="hidden md:flex gap-6">
+<!-- Systems (Active) -->
+<a class="font-label-mono text-label-mono uppercase text-on-surface border-b-2 border-neon-green pb-1 scale-95 transition-transform" href="#">Systems</a>
+<a class="font-label-mono text-label-mono uppercase text-text-muted hover:text-neon-green transition-all duration-200" href="#">Grid</a>
+<a class="font-label-mono text-label-mono uppercase text-text-muted hover:text-neon-green transition-all duration-200" href="#">Security</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 px-3 py-1 bg-surface-container-lowest border border-border-subtle">
+<span class="w-2 h-2 rounded-full bg-neon-green animate-pulse"></span>
+<span class="font-label-mono text-label-mono text-neon-green uppercase tracking-widest">SYSTEM ACTIVE</span>
+</div>
+<div class="flex items-center gap-4 text-text-muted">
+<button class="hover:text-neon-green transition-colors"><span class="material-symbols-outlined">schedule</span></button>
+<button class="hover:text-neon-green transition-colors"><span class="material-symbols-outlined">sync</span></button>
+<button class="hover:text-neon-green transition-colors"><span class="material-symbols-outlined">account_circle</span></button>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="ml-64 mt-16 p-margin-desktop flex-1 overflow-y-auto w-full">
+<div class="mb-8 flex justify-between items-end">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-1">Validation &amp; Merge</h1>
+<p class="font-body-md text-body-md text-text-muted">HQ Diagnostic Terminal: Branch Data Synchronization &amp; Integrity Check</p>
+</div>
+<button class="px-6 py-2 bg-primary-fixed-dim text-on-primary-fixed font-label-mono text-label-mono uppercase tracking-widest flex items-center gap-2 hover:bg-neon-green transition-colors">
+<span class="material-symbols-outlined">merge</span>
+                Commit Merge
+            </button>
+</div>
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Dropzone Area -->
+<div class="col-span-12 xl:col-span-4 flex flex-col gap-widget-gap">
+<div class="bg-surface-panel border border-border-subtle p-6 flex flex-col items-center justify-center h-64 border-2 border-dashed border-border-subtle hover:border-primary-fixed-dim transition-colors cursor-pointer group relative">
+<div class="absolute inset-0 bg-primary-fixed-dim opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none"></div>
+<span class="material-symbols-outlined text-4xl text-text-muted group-hover:text-primary-fixed-dim mb-4 transition-colors">upload_file</span>
+<span class="font-headline-sm text-headline-sm text-on-surface mb-2">Deploy Payload</span>
+<span class="font-label-mono text-label-mono text-text-muted text-center uppercase">Drag &amp; Drop JSON files here<br/>or click to browse</span>
+</div>
+<!-- Active Uploads List -->
+<div class="bg-surface-panel border-t border-border-subtle flex-1 p-4">
+<div class="font-label-mono text-label-mono text-text-muted uppercase mb-4 tracking-widest">Staged Payloads (3)</div>
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between p-3 bg-surface-elevated border border-border-subtle">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-data-cyan font-label-mono">data_object</span>
+<span class="font-label-mono text-label-mono text-on-surface">branch_eu_telemetry.json</span>
+</div>
+<span class="font-label-mono text-label-mono text-text-muted">24 MB</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-surface-elevated border border-border-subtle border-l-2 border-l-vibrant-red">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-vibrant-red font-label-mono">error</span>
+<span class="font-label-mono text-label-mono text-on-surface">branch_apac_equip.json</span>
+</div>
+<span class="font-label-mono text-label-mono text-vibrant-red">Failed</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-surface-elevated border border-border-subtle border-l-2 border-l-amber-warning">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-amber-warning font-label-mono">warning</span>
+<span class="font-label-mono text-label-mono text-on-surface">branch_na_logs.json</span>
+</div>
+<span class="font-label-mono text-label-mono text-amber-warning">Warnings</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Diagnostics Panel -->
+<div class="col-span-12 xl:col-span-8 flex flex-col gap-widget-gap">
+<!-- Status Metrics -->
+<div class="grid grid-cols-3 gap-widget-gap">
+<div class="bg-surface-panel border-t border-border-subtle p-4 border-l-2 border-l-vibrant-red flex flex-col">
+<span class="font-label-mono text-label-mono text-text-muted uppercase mb-2">Critical Errors</span>
+<span class="font-data-display text-data-display text-vibrant-red">12</span>
+</div>
+<div class="bg-surface-panel border-t border-border-subtle p-4 border-l-2 border-l-amber-warning flex flex-col">
+<span class="font-label-mono text-label-mono text-text-muted uppercase mb-2">Data Conflicts</span>
+<span class="font-data-display text-data-display text-amber-warning">47</span>
+</div>
+<div class="bg-surface-panel border-t border-border-subtle p-4 border-l-2 border-l-neon-green flex flex-col">
+<span class="font-label-mono text-label-mono text-text-muted uppercase mb-2">Clean Records</span>
+<span class="font-data-display text-data-display text-neon-green">8,402</span>
+</div>
+</div>
+<!-- Issues Table -->
+<div class="bg-surface-panel border-t border-border-subtle flex-1 flex flex-col overflow-hidden">
+<div class="p-4 border-b border-border-subtle flex justify-between items-center bg-surface-container-low">
+<span class="font-label-mono text-label-mono text-text-muted uppercase tracking-widest">Validation Diagnostics</span>
+<div class="flex gap-2">
+<button class="px-3 py-1 border border-border-subtle font-label-mono text-label-mono text-text-muted hover:text-on-surface hover:border-text-muted transition-colors uppercase">Filter: All</button>
+<button class="px-3 py-1 border border-vibrant-red font-label-mono text-label-mono text-vibrant-red hover:bg-vibrant-red hover:text-white transition-colors uppercase">Filter: Errors</button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-elevated border-b border-border-subtle sticky top-0">
+<tr>
+<th class="p-3 font-label-mono text-label-mono text-text-muted uppercase font-normal">ID / Reference</th>
+<th class="p-3 font-label-mono text-label-mono text-text-muted uppercase font-normal">Branch Origin</th>
+<th class="p-3 font-label-mono text-label-mono text-text-muted uppercase font-normal">Diagnostic Code</th>
+<th class="p-3 font-label-mono text-label-mono text-text-muted uppercase font-normal text-right">Action</th>
+</tr>
+</thead>
+<tbody class="font-label-mono text-label-mono text-on-surface">
+<!-- Error Row -->
+<tr class="border-b border-border-subtle bg-[#141B24] hover:bg-surface-elevated transition-colors">
+<td class="p-3 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-vibrant-red"></span>
+                                        EQ-APAC-0992
+                                    </td>
+<td class="p-3 text-text-muted">APAC-HQ</td>
+<td class="p-3 text-vibrant-red">ERR_DUPLICATE_KEY</td>
+<td class="p-3 text-right">
+<button class="text-data-cyan hover:underline uppercase tracking-wider">Resolve</button>
+</td>
+</tr>
+<!-- Warning Row -->
+<tr class="border-b border-border-subtle bg-[#141B24] hover:bg-surface-elevated transition-colors">
+<td class="p-3 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-amber-warning"></span>
+                                        TM-NA-441A
+                                    </td>
+<td class="p-3 text-text-muted">NA-WEST</td>
+<td class="p-3 text-amber-warning">WARN_TIMESTAMP_SKEW</td>
+<td class="p-3 text-right">
+<button class="text-data-cyan hover:underline uppercase tracking-wider">Ignore</button>
+</td>
+</tr>
+<!-- Warning Row -->
+<tr class="border-b border-border-subtle bg-[#141B24] hover:bg-surface-elevated transition-colors">
+<td class="p-3 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-amber-warning"></span>
+                                        TM-NA-441B
+                                    </td>
+<td class="p-3 text-text-muted">NA-WEST</td>
+<td class="p-3 text-amber-warning">WARN_VALUE_OUT_OF_BOUNDS</td>
+<td class="p-3 text-right">
+<button class="text-data-cyan hover:underline uppercase tracking-wider">Review</button>
+</td>
+</tr>
+<!-- Error Row -->
+<tr class="border-b border-border-subtle bg-[#141B24] hover:bg-surface-elevated transition-colors">
+<td class="p-3 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-vibrant-red"></span>
+                                        LOG-EU-99X
+                                    </td>
+<td class="p-3 text-text-muted">EU-CENTRAL</td>
+<td class="p-3 text-vibrant-red">ERR_MALFORMED_JSON</td>
+<td class="p-3 text-right">
+<button class="text-data-cyan hover:underline uppercase tracking-wider">Reject</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>
