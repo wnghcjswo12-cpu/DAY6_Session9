@@ -1,0 +1,13 @@
+{
+  "name": "equipment-history-management",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "설비이력관리 — GPT 페이지 검증 포함",
+  "scripts": {
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

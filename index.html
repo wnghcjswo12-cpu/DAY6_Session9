@@ -130,6 +130,59 @@
     </style>
 </head>
 <body class="bg-background text-on-surface font-body-md min-h-screen overflow-x-hidden selection:bg-primary-fixed-dim selection:text-on-primary-fixed">
+<!-- 비밀번호 잠금 오버레이 -->
+<div id="lockOverlay" class="fixed inset-0 z-[9999] flex items-center justify-center bg-surface-deep">
+  <div class="w-full max-w-sm mx-auto px-6 text-center">
+    <span class="material-symbols-outlined text-neon-green text-6xl mb-4">lock</span>
+    <h1 class="font-data-display text-3xl font-black text-neon-green tracking-tighter mb-2">NEXUS MONITOR</h1>
+    <p class="text-text-muted font-label-mono text-sm mb-8">접근하려면 비밀번호를 입력하세요</p>
+    <input id="lockInput" type="password" inputmode="numeric" autocomplete="off"
+      class="w-full text-center text-2xl tracking-[0.5em] font-data-display bg-surface-container border border-border-subtle rounded-lg py-4 text-text-primary focus:border-neon-green focus:ring-2 focus:ring-neon-green/40 outline-none"
+      placeholder="••••••" />
+    <p id="lockError" class="text-vibrant-red font-label-mono text-sm mt-3 h-5 opacity-0 transition-opacity">비밀번호가 올바르지 않습니다</p>
+    <button id="lockBtn"
+      class="w-full mt-4 bg-neon-green text-surface-deep font-data-display font-bold text-lg rounded-lg py-3 hover:opacity-90 transition-opacity">
+      잠금 해제
+    </button>
+  </div>
+</div>
+<script>
+(function () {
+  var PASSWORD = "260609";
+  var overlay = document.getElementById("lockOverlay");
+  var input = document.getElementById("lockInput");
+  var btn = document.getElementById("lockBtn");
+  var err = document.getElementById("lockError");
+
+  // 페이지 뒤 스크롤 방지
+  document.documentElement.style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
+  setTimeout(function () { input.focus(); }, 50);
+
+  function unlock() {
+    if (input.value === PASSWORD) {
+      overlay.style.display = "none";
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    } else {
+      err.style.opacity = "1";
+      input.value = "";
+      input.focus();
+    }
+  }
+
+  btn.addEventListener("click", unlock);
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") unlock();
+    else err.style.opacity = "0";
+  });
+})();
+</script>
+<!-- Page Verification Badge (각 페이지 우상단 · GPT 검증 결과) -->
+<div class="fixed top-[72px] right-6 z-[60] hidden items-center gap-2 px-3 py-1.5 rounded-full border bg-surface-elevated shadow-lg cursor-default select-none transition-colors" id="pageVerifyBadge" title="">
+<span class="material-symbols-outlined text-[18px]" id="pageVerifyIcon">hourglass_empty</span>
+<span class="font-label-mono text-label-mono" id="pageVerifyText">검증 중…</span>
+</div>
 <!-- TopNavBar -->
 <nav class="fixed top-0 right-0 left-64 z-50 flex justify-between items-center px-margin-desktop h-16 bg-surface-container-low border-b border-border-subtle hidden md:flex">
 <div class="flex items-center gap-6">
@@ -1379,6 +1432,108 @@
     ]);
   }
 
+  // ---------- GPT 페이지 검증 (F-신규) ----------
+  // 각 페이지가 "기대 구성"대로 렌더링되었는지 GPT 로 확인하고,
+  // 우상단 배지에 결과를 표시한다. (페이지 진입 시 자동 실행)
+  const VIEW_SPECS = {
+    overview: {
+      name: "Overview",
+      expected: "발전소 SCADA 대시보드 개요 화면. 상단에 GIS·GTG·STG 핵심 지표 카드(전압/출력 수치와 NORMAL 상태 표시)가 있고, 하단에 설비 검색창과 설비 현황 테이블(설비명/운영상태/최근 교정일/담당자 컬럼)이 있어야 한다.",
+    },
+    telemetry: {
+      name: "Telemetry",
+      expected: "설비 현황 요약 화면. 총 설비/사용중/정비중/조치 필요 요약 카드와, 지사별 설비 폴더(펼침·접힘 가능) 목록이 있어야 한다.",
+    },
+    equipment: {
+      name: "설비 마스터",
+      expected: "설비 마스터 화면(설비 1대=1행). 관리번호/설비명/종류/지사/상태/정비주기 컬럼의 표, 검색·필터, '설비 등록' 버튼이 있어야 한다.",
+    },
+    logs: {
+      name: "이력 기록",
+      expected: "유지보수 이력 기록 화면(점검·정비 1건=1행). 일자/분기/관리번호/작업유형/작업내용/결과판정/담당자 컬럼의 표, 검색·필터, '이력 등록' 버튼이 있어야 한다.",
+    },
+    alarms: {
+      name: "검증 & 취합",
+      expected: "데이터 검증 화면. 총 설비/총 이력/오류(Error)/경고(Warn) 요약 카드와, 이상 목록(Validation Issues)이 있어야 한다. 이상이 없으면 '이상 없음' 메시지가 표시될 수 있다.",
+    },
+    analysis: {
+      name: "분석 · Validation & Merge",
+      expected: "본사 진단 화면. JSON 페이로드 드롭존(Deploy Payload), 스테이징 목록, 진단 지표(Critical Errors/Data Conflicts/Clean Records), 진단 테이블, 'Commit Merge' 버튼이 있어야 한다.",
+    },
+    settings: {
+      name: "Settings",
+      expected: "환경 설정 화면. '내 지사(기본 입력 지사)' 선택과 데이터 관리(전체 내보내기/불러오기/전체 초기화) 기능이 있어야 한다.",
+    },
+  };
+
+  const verifyCache = new Map();  // key: "view|contentHash" -> { ok, reason }
+  let verifyToken = 0;            // 최신 요청만 반영(레이스 방지)
+  let verifyAbort = null;
+
+  function hashStr(str) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+    return (h >>> 0).toString(36);
+  }
+
+  function setVerifyBadge(state, label, title) {
+    const badge = $("#pageVerifyBadge"), icon = $("#pageVerifyIcon"), text = $("#pageVerifyText");
+    if (!badge) return;
+    const cfg = {
+      checking: { icon: "progress_activity", cls: "border-border-subtle text-text-muted", spin: true },
+      pass:     { icon: "check_circle",       cls: "border-neon-green/50 text-neon-green" },
+      fail:     { icon: "error",              cls: "border-vibrant-red/50 text-vibrant-red" },
+      error:    { icon: "cloud_off",          cls: "border-amber-warning/50 text-amber-warning" },
+    }[state] || {};
+    badge.className =
+      "fixed top-[72px] right-6 z-[60] flex items-center gap-2 px-3 py-1.5 rounded-full border bg-surface-elevated shadow-lg cursor-default select-none transition-colors " + (cfg.cls || "");
+    icon.textContent = cfg.icon || "";
+    icon.classList.toggle("animate-spin", !!cfg.spin);
+    text.textContent = label || "";
+    badge.title = title || label || "";
+  }
+
+  function applyVerifyResult(result, myToken) {
+    if (myToken !== verifyToken) return; // 더 최신 요청이 있으면 무시
+    if (result.ok) setVerifyBadge("pass", "검증 완료", result.reason || "페이지 구성 정상");
+    else setVerifyBadge("fail", "구성 이상", result.reason || "페이지 구성에 문제가 있습니다");
+  }
+
+  async function verifyCurrentView(view) {
+    const spec = VIEW_SPECS[view];
+    const el = $("#view-" + view);
+    const badge = $("#pageVerifyBadge");
+    if (!spec || !el) { if (badge) badge.classList.add("hidden"); return; }
+
+    const content = (el.innerText || "").replace(/\s+/g, " ").trim().slice(0, 4000);
+    const key = view + "|" + hashStr(content);
+    const myToken = ++verifyToken;
+
+    if (verifyCache.has(key)) { applyVerifyResult(verifyCache.get(key), myToken); return; }
+
+    setVerifyBadge("checking", "검증 중…", spec.name + " 페이지 GPT 검증 중");
+    if (verifyAbort) verifyAbort.abort();
+    verifyAbort = new AbortController();
+
+    try {
+      const res = await fetch("/api/verify-page", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ view, name: spec.name, expected: spec.expected, content }),
+        signal: verifyAbort.signal,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.reason || ("HTTP " + res.status));
+      const result = { ok: !!data.ok, reason: data.reason || "" };
+      verifyCache.set(key, result);
+      applyVerifyResult(result, myToken);
+    } catch (err) {
+      if (err.name === "AbortError" || myToken !== verifyToken) return;
+      setVerifyBadge("error", "검증 불가",
+        "GPT 검증 호출 실패: " + err.message + " — 로컬 서버(node server.js) 또는 Vercel 환경에서 .env 의 GPT_API_KEY 와 함께 실행했는지 확인하세요.");
+    }
+  }
+
   // ---------- 뷰 전환 ----------
   function switchView(view) {
     $$(".view").forEach((v) => v.classList.remove("active"));
@@ -1397,6 +1552,8 @@
     if (view === "alarms") renderVerify();
     if (view === "telemetry") renderTelemetry();
     if (view === "analysis") renderAnalysis();
+    // 페이지 진입 시 GPT 로 페이지 구성 자동 검증 → 우상단 배지 갱신
+    verifyCurrentView(view);
   }
 
   // ---------- 전체 렌더 ----------
